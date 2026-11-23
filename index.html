@@ -360,21 +360,40 @@
       text-decoration: underline !important;
     }
 
-    /* Floating Map Controls */
-    .map-floating-bar {
+    /* Floating Map Controls Group */
+    .map-controls-group {
       position: absolute;
       top: 58px;
       left: 16px;
       z-index: 500;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      pointer-events: none;
+      transition: all 0.2s ease;
+    }
+    .map-controls-group.hidden {
+      display: none !important;
+    }
+    .map-controls-group > * {
+      pointer-events: auto;
+    }
+    .map-floating-bar {
       display: flex;
       gap: 8px;
       background: rgba(10, 10, 12, 0.9);
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border: 1px solid var(--border);
       padding: 5px;
       border-radius: 4px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.5);
       transition: all 0.2s ease;
+    }
+    [data-theme="light"] .map-floating-bar {
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     }
     .map-floating-bar.hidden {
       display: none !important;
@@ -389,6 +408,52 @@
       gap: 6px;
       min-width: 90px;
       justify-content: center;
+    }
+
+    /* Mini island under floating-info-pill */
+    .island-labels-mini {
+      background: rgba(10, 10, 12, 0.9);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 5px 10px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+    [data-theme="light"] .island-labels-mini {
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+    .island-labels-mini:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      color: var(--text);
+    }
+    [data-theme="light"] .island-labels-mini:hover {
+      border-color: var(--border-light);
+    }
+    .island-labels-mini label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      margin: 0;
+      line-height: 1;
+    }
+    .island-labels-mini input[type="checkbox"] {
+      accent-color: var(--accent);
+      cursor: pointer;
+      width: 13px;
+      height: 13px;
+      margin: 0;
     }
 
     /* Button to toggle menu (beside telemetry on desktop, top-right on mobile) */
@@ -1053,14 +1118,20 @@
       #mobileMenuBtn {
         display: inline-flex;
       }
-      .map-floating-bar {
+      .map-controls-group {
         top: 48px;
         left: 12px;
         right: 12px;
+      }
+      .map-floating-bar {
+        width: 100%;
         justify-content: space-between;
       }
       .floating-info-pill {
         display: none;
+      }
+      .island-labels-mini {
+        align-self: flex-end;
       }
       .welcome-container {
         gap: 16px;
@@ -1187,20 +1258,30 @@
   <main id="mainApp">
     <div id="map"></div>
 
-    <!-- Floating bar on top of the map -->
-    <div class="map-floating-bar hidden" id="mapControlsBar">
-      <button id="btnScan" class="btn-red" style="padding: 6px 14px; font-size: 13px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        <span>Сканировать</span>
-      </button>
+    <!-- Floating controls group on top of the map -->
+    <div class="map-controls-group hidden" id="mapControlsBar">
+      <div class="map-floating-bar">
+        <button id="btnScan" class="btn-red" style="padding: 6px 14px; font-size: 13px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span>Сканировать</span>
+        </button>
 
-      <button id="btnAutoScan" style="padding: 6px 12px; font-size: 13px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-        <span id="autoScanText">Реал-тайм: выкл</span>
-      </button>
+        <button id="btnAutoScan" style="padding: 6px 12px; font-size: 13px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          <span id="autoScanText">Реал-тайм: выкл</span>
+        </button>
 
-      <div class="floating-info-pill" id="mapStatusPill">
-        <span>Zoom 16 · Масок: 0</span>
+        <div class="floating-info-pill" id="mapStatusPill">
+          <span>Zoom 16 · Масок: 0</span>
+        </div>
+      </div>
+
+      <!-- Quick settings mini-island under the floating info pill -->
+      <div class="island-labels-mini" id="islandLabelsMini" title="Включить / отключить подписи на карте">
+        <label>
+          <input type="checkbox" id="chkQuickLabels" checked>
+          <span>Показывать надписи</span>
+        </label>
       </div>
     </div>
 
@@ -1673,13 +1754,32 @@
     });
     labelsLayer = L.layerGroup([esriTransportation, esriBoundaries]).addTo(map);
 
-    $('chkShowLabels').addEventListener('change', () => {
-      if ($('chkShowLabels').checked) {
+    function syncMapLabels(show) {
+      if ($('chkShowLabels')) $('chkShowLabels').checked = show;
+      if ($('chkQuickLabels')) $('chkQuickLabels').checked = show;
+      if (show) {
         if (!map.hasLayer(labelsLayer)) labelsLayer.addTo(map);
       } else {
         if (map.hasLayer(labelsLayer)) map.removeLayer(labelsLayer);
       }
-    });
+      try {
+        localStorage.setItem('tessera_show_labels', show ? 'true' : 'false');
+      } catch (e) {}
+    }
+
+    if ($('chkShowLabels')) {
+      $('chkShowLabels').addEventListener('change', (e) => syncMapLabels(e.target.checked));
+    }
+    if ($('chkQuickLabels')) {
+      $('chkQuickLabels').addEventListener('change', (e) => syncMapLabels(e.target.checked));
+    }
+
+    try {
+      const savedLabels = localStorage.getItem('tessera_show_labels');
+      if (savedLabels !== null) {
+        syncMapLabels(savedLabels === 'true');
+      }
+    } catch (e) {}
 
     // Layer Grid initialization
     function initLayerGrid() {
