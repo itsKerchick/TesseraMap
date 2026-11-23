@@ -2,7 +2,7 @@
 <html lang="ru" data-theme="dark">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>TesseraMap</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" href="/favicon.png">
@@ -50,10 +50,10 @@
       background: var(--bg);
       color: var(--text);
       height: 100vh;
-      display: flex;
-      flex-direction: column;
+      width: 100vw;
       overflow: hidden;
       user-select: none;
+      position: relative;
     }
 
     /* Flat Clean Controls with smooth transitions */
@@ -105,26 +105,26 @@
       border-color: var(--accent);
     }
 
-    /* Top Header & Telemetry: in normal document flow to eliminate clipping */
-    #topHeader {
-      flex-shrink: 0;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 20px;
-      z-index: 1000;
-      gap: 20px;
-    }
-
-    .brand-section {
+    /* Floating Island: Top-Left Brand (NO line across screen) */
+    .island-brand {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 1300;
+      background: rgba(10, 10, 12, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 18px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+      transition: all 0.25s ease;
+      pointer-events: auto;
     }
     .brand-title {
-      font-size: 20px;
+      font-size: 26px;
       font-weight: 800;
       letter-spacing: -0.03em;
       line-height: 1.1;
@@ -134,10 +134,33 @@
       color: var(--accent);
     }
     .brand-subtext {
-      font-size: 11px;
+      font-size: 13.5px;
       color: var(--text-muted);
-      line-height: 1.4;
-      max-width: 600px;
+      line-height: 1.5;
+      max-width: 580px;
+    }
+
+    /* Floating Island: Top-Right Telemetry */
+    .island-telemetry {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 1000;
+      background: rgba(10, 10, 12, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .island-telemetry.hidden {
+      display: none !important;
+      opacity: 0;
+      pointer-events: none;
     }
 
     /* Connection Lost Animated Badge */
@@ -148,7 +171,7 @@
       background: #250606;
       border: 1px solid #ef4444;
       color: #ef4444;
-      padding: 5px 12px;
+      padding: 4px 10px;
       border-radius: 4px;
       font-size: 11px;
       font-weight: 700;
@@ -156,8 +179,8 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       opacity: 0;
-      transform: translateY(-8px);
-      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateY(-4px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
     .conn-lost-badge.show {
       display: inline-flex;
@@ -170,8 +193,8 @@
       50% { border-color: #991b1b; background: #160202; }
     }
     .conn-lost-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       background: #ef4444;
       border-radius: 50%;
       animation: blinkLost 0.9s infinite alternate;
@@ -185,18 +208,16 @@
     .telemetry-bar {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       font-size: 11px;
       font-family: var(--font-mono);
       color: var(--text-muted);
-      flex-wrap: wrap;
-      justify-content: flex-end;
+      white-space: nowrap;
     }
     .telem-item {
       display: flex;
       align-items: center;
       gap: 5px;
-      white-space: nowrap;
       position: relative;
     }
     .telem-label {
@@ -210,7 +231,7 @@
       font-weight: 600;
     }
 
-    /* Sparkline & Expandable GPU Graph (without native title popup) */
+    /* Sparkline & Expandable GPU Graph */
     .sparkline-box {
       display: inline-flex;
       align-items: center;
@@ -218,8 +239,8 @@
       position: relative;
     }
     .sparkline-svg {
-      width: 52px;
-      height: 18px;
+      width: 48px;
+      height: 16px;
       background: #0d0d10;
       border: 1px solid #1c1c22;
       border-radius: 2px;
@@ -237,7 +258,7 @@
       stroke-linejoin: round;
     }
 
-    /* Expanded GPU Chart Tooltip with smooth animation */
+    /* Expanded GPU Chart Tooltip */
     .gpu-expanded-chart {
       position: absolute;
       top: calc(100% + 8px);
@@ -275,12 +296,12 @@
       border: 1px solid #1a1a20;
     }
 
-    /* Main Container & Leaflet Map */
+    /* Main Container & Fullscreen Leaflet Map */
     #mainApp {
-      flex: 1;
-      position: relative;
-      min-height: 0;
+      position: absolute;
+      inset: 0;
       background: var(--bg);
+      overflow: hidden;
     }
     #map {
       width: 100%;
@@ -310,20 +331,24 @@
       text-decoration: underline !important;
     }
 
-    /* Floating Map Controls positioned cleanly without collisions */
+    /* Floating Map Controls */
     .map-floating-bar {
       position: absolute;
-      top: 16px;
+      top: 130px;
       left: 16px;
       z-index: 500;
       display: flex;
       gap: 8px;
-      background: var(--bg);
+      background: rgba(10, 10, 12, 0.9);
+      backdrop-filter: blur(10px);
       border: 1px solid var(--border);
       padding: 5px;
       border-radius: 4px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
       transition: all 0.2s ease;
+    }
+    .map-floating-bar.hidden {
+      display: none !important;
     }
     .floating-info-pill {
       display: flex;
@@ -333,26 +358,35 @@
       color: var(--text-muted);
       font-family: var(--font-mono);
       gap: 6px;
-      min-width: 100px;
+      min-width: 90px;
       justify-content: center;
     }
 
+    /* Button to toggle menu (beside telemetry on desktop, top-right on mobile) */
     .btn-toggle-menu {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      z-index: 500;
-      background: var(--bg);
       border: 1px solid var(--border);
-      padding: 8px 14px;
+      padding: 6px 12px;
       border-radius: 4px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       color: var(--text);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      transition: all 0.2s ease;
+      background: var(--surface-2);
+      transition: all 0.15s ease;
+      cursor: pointer;
     }
     .btn-toggle-menu:hover { border-color: var(--accent); }
+
+    /* Separate standalone menu button on mobile */
+    #mobileMenuBtn {
+      display: none;
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 1000;
+      padding: 8px 12px;
+      background: rgba(10, 10, 12, 0.9);
+      backdrop-filter: blur(10px);
+    }
 
     /* Custom Leaflet Zoom control styling in bottom right */
     .leaflet-bottom.leaflet-right .leaflet-control-zoom {
@@ -376,12 +410,9 @@
     /* Side Drawer Menu Backdrop */
     #sideMenuBackdrop {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       background: rgba(0, 0, 0, 0.6);
-      z-index: 850;
+      z-index: 1850;
       opacity: 0;
       visibility: hidden;
       transition: opacity 0.25s ease, visibility 0.25s ease;
@@ -401,7 +432,7 @@
       max-width: 90vw;
       background: var(--bg);
       border-left: 1px solid var(--border);
-      z-index: 900;
+      z-index: 1900;
       display: flex;
       flex-direction: column;
       transform: translateX(100%);
@@ -441,6 +472,29 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+    }
+
+    /* Mobile Telemetry Grid in Side Menu */
+    .menu-telemetry-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+    .m-telem-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .m-telem-lbl {
+      color: var(--text-subtle);
+      font-size: 10px;
+      text-transform: uppercase;
     }
 
     /* Layer cards */
@@ -521,10 +575,7 @@
     /* Modal Overlays with smooth fade & scale transitions */
     .overlay-screen {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       background: var(--bg);
       z-index: 1200;
       display: flex;
@@ -772,34 +823,71 @@
       border-radius: 1px;
     }
 
-    @media (max-width: 950px) {
-      #topHeader { flex-direction: column; align-items: flex-start; gap: 10px; }
-      .telemetry-bar { justify-content: flex-start; }
+    /* Mobile Responsive Adaptation */
+    @media (max-width: 820px) {
+      .island-brand {
+        top: 12px;
+        left: 12px;
+        padding: 6px 12px;
+        gap: 0;
+      }
+      .brand-title {
+        font-size: 18px;
+      }
+      .brand-subtext {
+        display: none !important;
+      }
+      .island-telemetry {
+        display: none !important;
+      }
+      #mobileMenuBtn {
+        display: inline-flex;
+      }
+      .map-floating-bar {
+        top: 60px;
+        left: 12px;
+        right: 12px;
+        justify-content: space-between;
+      }
+      .floating-info-pill {
+        display: none;
+      }
+      .welcome-card {
+        padding: 24px 18px;
+        max-width: 90vw;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Header with exact custom text and flat telemetry -->
-  <header id="topHeader">
-    <div class="brand-section">
-      <div class="brand-title">
-        <span class="red-ch">T</span>essera<span class="red-ch">M</span>ap
-      </div>
-      <div class="brand-subtext">
-        <div>Чтож, этот сайт хостится в Германии, так что сорян, если пинг будет большой.</div>
-        <div>Вся обработка проводится на моём пк, так что если сервак не доступен - напишите мне.</div>
-        <div>Я так и быть (возможно) его включу.</div>
-      </div>
+  <!-- Floating Island Top-Left: Brand & Description (NO line across screen) -->
+  <div class="island-brand" id="brandIsland">
+    <div class="brand-title">
+      <span class="red-ch">T</span>essera<span class="red-ch">M</span>ap
     </div>
+    <div class="brand-subtext" id="brandSubtext">
+      <div>Чтож, этот сайт хостится в Германии, так что сорян, если пинг будет большой.</div>
+      <div>Вся обработка проводится на моём пк, так что если сервак не доступен - напишите мне.</div>
+      <div>Я так и быть (возможно) его включу.</div>
+    </div>
+  </div>
 
+  <!-- Mobile-only standalone menu button in top right -->
+  <button id="mobileMenuBtn" class="btn-toggle-menu">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <span>Параметры</span>
+  </button>
+
+  <!-- Floating Island Top-Right: Telemetry + Menu button (Desktop) -->
+  <div class="island-telemetry hidden" id="telemetryIsland">
     <!-- Connection Lost Animated Badge -->
     <div id="connLostBadge" class="conn-lost-badge">
       <span class="conn-lost-dot"></span>
       <span>Соединение потеряно...</span>
     </div>
 
-    <!-- Telemetry Stats -->
+    <!-- Desktop Telemetry Bar -->
     <div class="telemetry-bar" id="telemetryBar">
       <div class="telem-item">
         <span class="telem-label">GPU:</span>
@@ -810,8 +898,8 @@
       <div class="telem-item sparkline-box" id="gpuLoadBox">
         <span class="telem-label">Нагрузка:</span>
         <span class="telem-value" id="telemGpuLoad">--%</span>
-        <svg class="sparkline-svg" id="gpuSparkline" viewBox="0 0 52 18">
-          <path id="sparklinePath" d="M 0 16 L 52 16" />
+        <svg class="sparkline-svg" id="gpuSparkline" viewBox="0 0 48 16">
+          <path id="sparklinePath" d="M 0 14 L 48 14" />
         </svg>
 
         <!-- Expanded GPU graph popup on hover -->
@@ -859,14 +947,20 @@
         <span class="telem-value" id="telemIp">--</span>
       </div>
     </div>
-  </header>
+
+    <!-- Integrated Desktop Menu Button -->
+    <button id="btnOpenMenu" class="btn-toggle-menu">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <span>Параметры</span>
+    </button>
+  </div>
 
   <!-- Main Map Container -->
   <main id="mainApp">
     <div id="map"></div>
 
     <!-- Floating bar on top of the map -->
-    <div class="map-floating-bar">
+    <div class="map-floating-bar hidden" id="mapControlsBar">
       <button id="btnScan" class="btn-red" style="padding: 6px 14px; font-size: 13px;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         <span>Сканировать</span>
@@ -881,12 +975,6 @@
         <span>Zoom 16 · Масок: 0</span>
       </div>
     </div>
-
-    <!-- Button to toggle side drawer -->
-    <button id="btnOpenMenu" class="btn-toggle-menu">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      <span>Параметры</span>
-    </button>
 
     <!-- Side Drawer Menu Backdrop -->
     <div id="sideMenuBackdrop"></div>
@@ -1002,6 +1090,20 @@
             <input type="checkbox" id="keepMasksCheck" checked style="accent-color: var(--accent);">
             <span>Оставлять обработанные участки</span>
           </label>
+        </div>
+
+        <!-- Mobile Telemetry Section in Menu -->
+        <div class="menu-section" id="menuTelemetrySection">
+          <div class="section-title">Телеметрия сервера</div>
+          <div class="menu-telemetry-grid">
+            <div class="m-telem-row"><span class="m-telem-lbl">GPU:</span><span id="mTelemGpuName">--</span></div>
+            <div class="m-telem-row"><span class="m-telem-lbl">Нагрузка:</span><span id="mTelemGpuLoad">--%</span></div>
+            <div class="m-telem-row"><span class="m-telem-lbl">На сайте:</span><span id="mTelemUsers">--</span></div>
+            <div class="m-telem-row"><span class="m-telem-lbl">Часы работы:</span><span id="mTelemUptime">--:--:--</span></div>
+            <div class="m-telem-row"><span class="m-telem-lbl">Трафик:</span><span><span style="color:var(--accent)">↑</span> <span id="mBytesUp">0 B</span> <span style="color:var(--success)">↓</span> <span id="mBytesDown">0 B</span></span></div>
+            <div class="m-telem-row"><span class="m-telem-lbl">Пинг:</span><span id="mTelemPing">-- мс</span></div>
+            <div class="m-telem-row"><span class="m-telem-lbl">IP_client:</span><span id="mTelemIp">--</span></div>
+          </div>
         </div>
       </div>
 
@@ -1137,8 +1239,12 @@
     function recordTraffic(sent, recv) {
       if (sent) totalBytesSent += sent;
       if (recv) totalBytesRecv += recv;
-      $('bytesUp').textContent = formatBytes(totalBytesSent);
-      $('bytesDown').textContent = formatBytes(totalBytesRecv);
+      const upStr = formatBytes(totalBytesSent);
+      const downStr = formatBytes(totalBytesRecv);
+      $('bytesUp').textContent = upStr;
+      $('bytesDown').textContent = downStr;
+      $('mBytesUp').textContent = upStr;
+      $('mBytesDown').textContent = downStr;
     }
 
     // Sparkline history data points (last 24 values)
@@ -1148,12 +1254,12 @@
       gpuHistory.shift();
       gpuHistory.push(val);
 
-      // Mini sparkline (52x18)
-      const maxH = 16;
-      const stepX = 52 / (gpuHistory.length - 1);
+      // Mini sparkline (48x16)
+      const maxH = 14;
+      const stepX = 48 / (gpuHistory.length - 1);
       const points = gpuHistory.map((v, i) => {
         const x = (i * stepX).toFixed(1);
-        const y = (17 - (Math.min(100, Math.max(0, v)) / 100) * maxH).toFixed(1);
+        const y = (15 - (Math.min(100, Math.max(0, v)) / 100) * maxH).toFixed(1);
         return `${x} ${y}`;
       });
       $('sparklinePath').setAttribute('d', 'M ' + points.join(' L '));
@@ -1317,6 +1423,7 @@
       $('sideMenuBackdrop').classList.remove('open');
     }
     $('btnOpenMenu').addEventListener('click', openMenu);
+    $('mobileMenuBtn').addEventListener('click', openMenu);
     $('btnCloseMenu').addEventListener('click', closeMenu);
     $('sideMenuBackdrop').addEventListener('click', closeMenu);
 
@@ -1378,6 +1485,8 @@
       clearMasks();
       $('connectScreen').classList.add('hidden');
       $('welcomeScreen').classList.remove('hidden');
+      $('telemetryIsland').classList.add('hidden');
+      $('mapControlsBar').classList.add('hidden');
       $('connLostBadge').classList.remove('show');
 
       // Reset telemetry text
@@ -1518,6 +1627,8 @@
         // Smooth fade out of connection overlay revealing the main app
         setTimeout(() => {
           $('connectScreen').classList.add('hidden');
+          $('telemetryIsland').classList.remove('hidden');
+          $('mapControlsBar').classList.remove('hidden');
           isConnected = true;
           showToast('TesseraMap готов к работе');
           updateMapStatusPill();
@@ -1563,6 +1674,8 @@
       closeMenu();
       $('welcomeScreen').classList.add('hidden');
       $('connectScreen').classList.remove('hidden');
+      $('telemetryIsland').classList.add('hidden');
+      $('mapControlsBar').classList.add('hidden');
       setConnectionStatus('api_expired');
     }
 
@@ -1577,6 +1690,7 @@
         const pingMs = Math.round(performance.now() - t0);
         recordTraffic(0, 30);
         $('telemPing').textContent = `${pingMs} мс`;
+        $('mTelemPing').textContent = `${pingMs} мс`;
 
         recordTraffic(30, 0);
         const statRes = await fetch('/api/system-stats?client_id=' + clientId);
@@ -1594,6 +1708,7 @@
       } catch (e) {
         failCount++;
         $('telemPing').textContent = 'off';
+        $('mTelemPing').textContent = 'off';
         if (failCount >= 2) {
           $('connLostBadge').classList.add('show');
         }
@@ -1601,12 +1716,27 @@
     }
 
     function updateTelemetry(s) {
-      if (s.gpu_name) $('telemGpuName').textContent = s.gpu_name.replace('NVIDIA GeForce ', '');
-      if (s.gpu_load) $('telemGpuLoad').textContent = s.gpu_load;
+      const gpuShort = s.gpu_name ? s.gpu_name.replace('NVIDIA GeForce ', '') : '--';
+      $('telemGpuName').textContent = gpuShort;
+      $('mTelemGpuName').textContent = gpuShort;
+
+      if (s.gpu_load) {
+        $('telemGpuLoad').textContent = s.gpu_load;
+        $('mTelemGpuLoad').textContent = s.gpu_load;
+      }
       if (s.gpu_load_val !== undefined) updateGpuCharts(s.gpu_load_val, s.gpu_mem);
-      if (s.active_users) $('telemUsers').textContent = s.active_users;
-      if (s.uptime) $('telemUptime').textContent = s.uptime;
-      if (s.client_ip) $('telemIp').textContent = s.client_ip;
+      if (s.active_users) {
+        $('telemUsers').textContent = s.active_users;
+        $('mTelemUsers').textContent = s.active_users;
+      }
+      if (s.uptime) {
+        $('telemUptime').textContent = s.uptime;
+        $('mTelemUptime').textContent = s.uptime;
+      }
+      if (s.client_ip) {
+        $('telemIp').textContent = s.client_ip;
+        $('mTelemIp').textContent = s.client_ip;
+      }
     }
 
     // Dynamic Geolocation for the Status Pill (City / Country based on scale)
@@ -2024,7 +2154,7 @@
 
     map.on('mouseout', () => { tooltip.style.display = 'none'; });
 
-    // Initial page load setup: NO server fetch until btnConnect!
+    // Initial page load setup
     window.addEventListener('DOMContentLoaded', () => {
       initLayerGrid();
       if (currentApiKey) {
