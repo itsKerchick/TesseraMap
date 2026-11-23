@@ -929,6 +929,89 @@
       opacity: 1;
     }
 
+    /* Fixed Bottom Dark Transparent Telemetry Window */
+    .docked-telemetry {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(0);
+      z-index: 1100;
+      background: rgba(10, 10, 14, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.75);
+      width: calc(100% - 32px);
+      max-width: 900px;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.28s ease;
+      pointer-events: auto;
+    }
+    .docked-telemetry.hidden {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(-50%) translateY(20px);
+      pointer-events: none;
+    }
+    .docked-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .docked-title {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+    .btn-docked-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 0 4px;
+      line-height: 1;
+      transition: color 0.15s ease;
+    }
+    .btn-docked-close:hover {
+      color: var(--accent);
+    }
+    .docked-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+    .d-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 55px;
+    }
+    .d-lbl {
+      font-size: 9px;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .d-val {
+      color: var(--text);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
     /* Interactive Hover Tooltip for Segments */
     #hoverTooltip {
       position: absolute;
@@ -993,6 +1076,18 @@
       .welcome-card {
         padding: 22px 16px;
         max-width: 100%;
+      }
+      .docked-telemetry {
+        bottom: 10px;
+        width: calc(100% - 16px);
+        padding: 8px 12px;
+      }
+      .docked-grid {
+        gap: 6px 12px;
+        font-size: 10px;
+      }
+      .d-item {
+        min-width: 45px;
       }
     }
   </style>
@@ -1137,6 +1232,15 @@
           <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text); cursor: pointer;">
             <input type="checkbox" id="chkShowLabels" checked style="accent-color: var(--accent);">
             <span>Подписи городов, регионов и улиц</span>
+          </label>
+        </div>
+
+        <!-- Pinned Telemetry Dock Toggle -->
+        <div class="menu-section">
+          <div class="section-title">Панель отладки</div>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text); cursor: pointer;">
+            <input type="checkbox" id="chkPinTelemetry" style="accent-color: var(--accent);">
+            <span>Закрепить отладку снизу</span>
           </label>
         </div>
 
@@ -1360,6 +1464,48 @@
       <span class="hover-badge-dot" id="tooltipDot"></span>
       <span id="tooltipText">Здание</span>
     </div>
+
+    <!-- Pinned Bottom Telemetry Window -->
+    <div id="dockedTelemetry" class="docked-telemetry hidden">
+      <div class="docked-header">
+        <div class="docked-title">Телеметрия системы</div>
+        <button id="btnCloseDocked" class="btn-docked-close" title="Закрыть панель">✕</button>
+      </div>
+      <div class="docked-grid">
+        <div class="d-item">
+          <span class="d-lbl">GPU</span>
+          <span class="d-val" id="dTelemGpuName">--</span>
+        </div>
+        <div class="d-item">
+          <span class="d-lbl">Нагрузка</span>
+          <span class="d-val" id="dTelemGpuLoad">--%</span>
+        </div>
+        <div class="d-item">
+          <span class="d-lbl">VRAM</span>
+          <span class="d-val" id="dTelemVram">--</span>
+        </div>
+        <div class="d-item">
+          <span class="d-lbl">На сайте</span>
+          <span class="d-val" id="dTelemUsers">--</span>
+        </div>
+        <div class="d-item">
+          <span class="d-lbl">Uptime</span>
+          <span class="d-val" id="dTelemUptime">--:--:--</span>
+        </div>
+        <div class="d-item">
+          <span class="d-lbl">Трафик</span>
+          <span class="d-val"><span style="color:var(--accent)">↑</span> <span id="dBytesUp">0 B</span> <span style="color:var(--success)">↓</span> <span id="dBytesDown">0 B</span></span>
+        </div>
+        <div class="d-item">
+          <span class="d-lbl">Пинг</span>
+          <span class="d-val" id="dTelemPing">-- мс</span>
+        </div>
+        <div class="d-item">
+          <span class="d-lbl">IP_client</span>
+          <span class="d-val" id="dTelemIp">--</span>
+        </div>
+      </div>
+    </div>
   </main>
 
   <!-- Toast Message -->
@@ -1422,6 +1568,8 @@
       $('bytesDown').textContent = downStr;
       $('mBytesUp').textContent = upStr;
       $('mBytesDown').textContent = downStr;
+      if ($('dBytesUp')) $('dBytesUp').textContent = upStr;
+      if ($('dBytesDown')) $('dBytesDown').textContent = downStr;
     }
 
     // Sparkline history data points (last 24 values)
@@ -1513,13 +1661,17 @@
       attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    // City & street names label overlay (CartoDB Voyager Labels, transparent, crisp white with dark halo)
-    labelsLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
-      subdomains: 'abcd',
+    // City & street names label overlay (ESRI World Transportation + World Boundaries & Places, transparent, no watermark / no API key)
+    const esriTransportation = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 20,
+      pane: 'labelsPane'
+    });
+    const esriBoundaries = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 20,
       pane: 'labelsPane',
-      attribution: '© CartoDB'
-    }).addTo(map);
+      attribution: '© Esri'
+    });
+    labelsLayer = L.layerGroup([esriTransportation, esriBoundaries]).addTo(map);
 
     $('chkShowLabels').addEventListener('change', () => {
       if ($('chkShowLabels').checked) {
@@ -1589,6 +1741,33 @@
       setTheme(current === 'dark' ? 'light' : 'dark');
     });
     setTheme(localStorage.getItem('tesseramap_theme') || 'dark');
+
+    // Pinned Bottom Telemetry Window Controller
+    function setDockedTelemetry(show, save = true) {
+      const el = $('dockedTelemetry');
+      const chk = $('chkPinTelemetry');
+      if (chk) chk.checked = show;
+      if (!el) return;
+      if (show) {
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
+      if (save) {
+        localStorage.setItem('tesseramap_pinned_debug', show ? '1' : '0');
+      }
+    }
+    if ($('chkPinTelemetry')) {
+      $('chkPinTelemetry').addEventListener('change', e => {
+        setDockedTelemetry(e.target.checked);
+      });
+    }
+    if ($('btnCloseDocked')) {
+      $('btnCloseDocked').addEventListener('click', () => {
+        setDockedTelemetry(false);
+      });
+    }
+    setDockedTelemetry(localStorage.getItem('tesseramap_pinned_debug') === '1', false);
 
     // Drawer Menu Toggle with Backdrop
     function openMenu() {
@@ -1707,6 +1886,21 @@
       $('telemUptime').textContent = '--:--:--';
       $('telemPing').textContent = '-- мс';
       $('telemIp').textContent = '--';
+
+      $('mTelemGpuName').textContent = '--';
+      $('mTelemGpuLoad').textContent = '--%';
+      $('mTelemUsers').textContent = '--';
+      $('mTelemUptime').textContent = '--:--:--';
+      $('mTelemPing').textContent = '-- мс';
+      $('mTelemIp').textContent = '--';
+
+      if ($('dTelemGpuName')) $('dTelemGpuName').textContent = '--';
+      if ($('dTelemGpuLoad')) $('dTelemGpuLoad').textContent = '--%';
+      if ($('dTelemVram')) $('dTelemVram').textContent = '--';
+      if ($('dTelemUsers')) $('dTelemUsers').textContent = '--';
+      if ($('dTelemUptime')) $('dTelemUptime').textContent = '--:--:--';
+      if ($('dTelemPing')) $('dTelemPing').textContent = '-- мс';
+      if ($('dTelemIp')) $('dTelemIp').textContent = '--';
 
       if (isExpired) {
         const inp = $('apiKeyInput');
@@ -1914,6 +2108,7 @@
         recordTraffic(0, 30);
         $('telemPing').textContent = `${pingMs} мс`;
         $('mTelemPing').textContent = `${pingMs} мс`;
+        if ($('dTelemPing')) $('dTelemPing').textContent = `${pingMs} мс`;
 
         recordTraffic(30, 0);
         const statRes = await fetch('/api/system-stats?client_id=' + clientId);
@@ -1940,6 +2135,7 @@
         isWorkerOnline = false;
         $('telemPing').textContent = 'off';
         $('mTelemPing').textContent = 'off';
+        if ($('dTelemPing')) $('dTelemPing').textContent = 'off';
         if (failCount >= 2) {
           $('connLostBadge').classList.add('show');
           $('connLostBadge').querySelector('span:last-child').textContent = 'Соединение потеряно...';
@@ -1953,25 +2149,31 @@
       const gpuShort = gpuRaw.replace('NVIDIA GeForce ', '');
       $('telemGpuName').textContent = gpuShort;
       $('mTelemGpuName').textContent = gpuShort;
+      if ($('dTelemGpuName')) $('dTelemGpuName').textContent = gpuShort;
 
       const loadNum = typeof s.gpu_load === 'number' ? s.gpu_load : (parseInt(s.gpu_load) || 0);
       $('telemGpuLoad').textContent = `${loadNum}%`;
       $('mTelemGpuLoad').textContent = `${loadNum}%`;
+      if ($('dTelemGpuLoad')) $('dTelemGpuLoad').textContent = `${loadNum}%`;
 
       const memStr = s.gpu_memory || s.gpu_mem || '';
       updateGpuCharts(loadNum, memStr);
+      if ($('dTelemVram')) $('dTelemVram').textContent = memStr || '--';
 
       const usersVal = s.users !== undefined ? s.users : (s.active_users || 1);
       $('telemUsers').textContent = usersVal;
       $('mTelemUsers').textContent = usersVal;
+      if ($('dTelemUsers')) $('dTelemUsers').textContent = usersVal;
 
       const uptimeVal = s.uptime || s.vps_uptime || '--:--:--';
       $('telemUptime').textContent = uptimeVal;
       $('mTelemUptime').textContent = uptimeVal;
+      if ($('dTelemUptime')) $('dTelemUptime').textContent = uptimeVal;
 
       const ipVal = s.ip || s.client_ip || '--';
       $('telemIp').textContent = ipVal;
       $('mTelemIp').textContent = ipVal;
+      if ($('dTelemIp')) $('dTelemIp').textContent = ipVal;
     }
 
     // Dynamic Geolocation for the Status Pill (City / Country based on scale)
