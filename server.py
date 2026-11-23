@@ -80,6 +80,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.on_event("startup")
+async def startup_event():
+    LOG.info("Инициализация сервера: проверка весов и предзагрузка нейросетей...")
+    loop = asyncio.get_running_loop()
+    try:
+        await loop.run_in_executor(EXECUTOR, get_models)
+        LOG.info("Нейросети YOLO26x и SegFormer-B5 успешно загружены и готовы к работе.")
+    except Exception as exc:
+        LOG.error("Ошибка при предзагрузке нейросетей: %s", exc)
+
 LOG = logging.getLogger("tesseramap")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 EVENTS = deque(maxlen=400)
@@ -601,4 +612,10 @@ async def geocode(lat: float, lon: float, zoom: int):
 if __name__ == "__main__":
     import uvicorn
     add_log("server", "Запуск сервера TesseraMap", min_zoom=MIN_SCAN_ZOOM)
+    print("=" * 60)
+    print("      TesseraMap - Запуск локального сервера")
+    print("============================================================")
+    print("[1/2] Проверка весов моделей и предзагрузка нейросетей...")
+    get_models()
+    print("[2/2] Запуск веб-сервера Uvicorn на http://127.0.0.1:7861 ...")
     uvicorn.run(app, host="127.0.0.1", port=7861, log_level="info")

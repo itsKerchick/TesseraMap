@@ -60,6 +60,13 @@ def resolve_yolo_weights() -> Path:
     fallback = ROOT.parent / "YOLO26-Benchmark" / "results" / "openearthmap-x-v1" / "weights" / "best.pt"
     if fallback.exists():
         return fallback
+    try:
+        import download_weights
+        download_weights.ensure_weights()
+        if local.exists():
+            return local
+    except Exception as exc:
+        print(f"Ошибка при автоматической загрузке весов: {exc}")
     raise FileNotFoundError(
         f"Не найдены веса YOLO: {local}\n"
         "Запустите 'python download_weights.py' для загрузки весов."
@@ -73,6 +80,13 @@ def resolve_segformer_dir() -> Path:
     fallback = ROOT.parent / "SegFormer-Benchmark" / "results" / "segformer-b5-v1" / "best"
     if (fallback / "model.safetensors").exists() or (fallback / "pytorch_model.bin").exists():
         return fallback
+    try:
+        import download_weights
+        download_weights.ensure_weights()
+        if (local / "model.safetensors").exists() or (local / "pytorch_model.bin").exists():
+            return local
+    except Exception as exc:
+        print(f"Ошибка при автоматической загрузке весов: {exc}")
     raise FileNotFoundError(
         f"Не найдены веса SegFormer: {local}\n"
         "Запустите 'python download_weights.py' для загрузки весов."
@@ -81,6 +95,17 @@ def resolve_segformer_dir() -> Path:
 
 def load_models():
     global _YOLO_MODEL, _SEGFORMER_MODEL
+
+    # Ensure weights are present (downloads from Dropbox if missing)
+    local_yolo = ROOT / "weights" / "yolo" / "best.pt"
+    fallback_yolo = ROOT.parent / "YOLO26-Benchmark" / "results" / "openearthmap-x-v1" / "weights" / "best.pt"
+    if not local_yolo.exists() and not fallback_yolo.exists():
+        try:
+            import download_weights
+            download_weights.ensure_weights()
+        except Exception as exc:
+            print(f"Автоматическая загрузка моделей не удалась: {exc}")
+
     if _YOLO_MODEL is None:
         yolo_path = resolve_yolo_weights()
         print(f"Загрузка YOLO26x ({yolo_path.name})...")
@@ -91,6 +116,8 @@ def load_models():
         print(f"Загрузка SegFormer-B5 ({seg_dir.name})...")
         _SEGFORMER_MODEL = SegformerForSemanticSegmentation.from_pretrained(str(seg_dir)).to(DEVICE)
         _SEGFORMER_MODEL.eval()
+
+    return _YOLO_MODEL, _SEGFORMER_MODEL
 
 
 def square_canvas_from_image(image: Image.Image, size: int) -> tuple[Image.Image, tuple[int, int, int, int]]:

@@ -106,18 +106,24 @@ def unpack_and_organize(zip_path: Path):
 
             if "best.pt" in fname_lower or (fname_lower.endswith(".pt") and "yolo" in fname_lower):
                 dest = YOLO_DIR / "best.pt"
+                if dest.exists():
+                    dest.unlink()
                 shutil.move(str(src), str(dest))
                 print(f"  ✓ YOLO26x: {dest.relative_to(ROOT)} ({format_bytes(dest.stat().st_size)})")
                 found_yolo = True
 
             elif fname_lower.endswith(".safetensors") or fname_lower == "pytorch_model.bin":
                 dest = SEGFORMER_DIR / f
+                if dest.exists():
+                    dest.unlink()
                 shutil.move(str(src), str(dest))
                 print(f"  ✓ SegFormer-B5 веса: {dest.relative_to(ROOT)} ({format_bytes(dest.stat().st_size)})")
                 found_segformer = True
 
             elif fname_lower == "config.json":
                 dest = SEGFORMER_DIR / "config.json"
+                if dest.exists():
+                    dest.unlink()
                 shutil.move(str(src), str(dest))
                 print(f"  ✓ SegFormer config: {dest.relative_to(ROOT)}")
 
@@ -134,29 +140,59 @@ def unpack_and_organize(zip_path: Path):
         print("\nВнимание: проверьте папку weights/, не все файлы были автоматически сопоставлены.")
 
 
-def main():
-    print("==================================================")
-    print("      TesseraMap - Загрузка весов моделей        ")
-    print("==================================================")
-
+def has_weights() -> bool:
+    """Returns True if local weight files are already present."""
     yolo_file = YOLO_DIR / "best.pt"
     segformer_file = SEGFORMER_DIR / "model.safetensors"
+    segformer_alt = SEGFORMER_DIR / "pytorch_model.bin"
+    return yolo_file.is_file() and (segformer_file.is_file() or segformer_alt.is_file())
 
-    if yolo_file.exists() and segformer_file.exists():
-        print(f"✓ Веса уже установлены в папке {WEIGHTS_DIR.relative_to(ROOT)}:")
-        print(f"  - YOLO26x: {yolo_file.relative_to(ROOT)} ({format_bytes(yolo_file.stat().st_size)})")
-        print(f"  - SegFormer-B5: {segformer_file.relative_to(ROOT)} ({format_bytes(segformer_file.stat().st_size)})")
-        return
+
+def ensure_weights(force: bool = False) -> bool:
+    """Checks if model weights exist locally.
+    If not, downloads Models_tessera.zip from Dropbox, unpacks and sets them up.
+    """
+    if not force and has_weights():
+        return True
+
+    print("\n" + "=" * 55)
+    print("      TesseraMap - Автоматическая загрузка моделей       ")
+    print("=" * 55)
+    print(f"Локальные веса моделей не обнаружены в папке:")
+    print(f"  {WEIGHTS_DIR}")
+    print(f"Начинается автоматическое скачивание из облачного хранилища...")
+    print(f"Размер архива: ~419 MB (YOLO26x + SegFormer-B5)")
 
     temp_zip = WEIGHTS_DIR / "Models_tessera.zip"
     try:
         download_with_progress(DROPBOX_ZIP_URL, temp_zip)
         unpack_and_organize(temp_zip)
+        print("✓ Веса моделей успешно загружены и готовы к работе!\n")
+        return True
     except Exception as e:
-        print(f"\n✗ Ошибка при скачивании или распаковке: {e}")
+        print(f"\n✗ Ошибка при скачивании весов моделей: {e}")
         print(f"Вы можете скачать архив вручную по ссылке:")
         print(f"  {DROPBOX_ZIP_URL}")
-        print(f"И распаковать файлы в: {WEIGHTS_DIR}")
+        print(f"И распаковать файлы в: {WEIGHTS_DIR}\n")
+        raise
+
+
+def main():
+    print("==================================================")
+    print("      TesseraMap - Загрузка весов моделей        ")
+    print("==================================================")
+
+    if has_weights():
+        yolo_file = YOLO_DIR / "best.pt"
+        seg_file = SEGFORMER_DIR / "model.safetensors"
+        if not seg_file.exists():
+            seg_file = SEGFORMER_DIR / "pytorch_model.bin"
+        print(f"✓ Веса уже установлены в папке {WEIGHTS_DIR.relative_to(ROOT)}:")
+        print(f"  - YOLO26x: {yolo_file.relative_to(ROOT)} ({format_bytes(yolo_file.stat().st_size)})")
+        print(f"  - SegFormer-B5: {seg_file.relative_to(ROOT)} ({format_bytes(seg_file.stat().st_size)})")
+        return
+
+    ensure_weights(force=True)
 
 
 if __name__ == "__main__":

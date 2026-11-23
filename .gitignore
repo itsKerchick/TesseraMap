@@ -7,12 +7,9 @@ env/
 venv/
 *.log
 
-# Large ML Weights (Stored in GitHub Releases)
-weights/**/*.pt
-weights/**/*.safetensors
-weights/**/*.bin
-weights/**/*.pth
-!weights/**/.gitkeep
+# ML Model Weights (Downloaded automatically on startup via download_weights.py)
+weights/*
+!weights/.gitkeep
 
 # IDEs & System
 .DS_Store
