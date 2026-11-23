@@ -549,25 +549,6 @@
       flex-shrink: 0;
     }
     .menu-header h3 { font-size: 15px; font-weight: 700; margin: 0; }
-    .btn-header-logout {
-      background: rgba(220, 38, 38, 0.18);
-      border: 1px solid rgba(220, 38, 38, 0.45);
-      color: #ef4444;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 5px 10px;
-      border-radius: 4px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .btn-header-logout:hover {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
     .menu-content {
       padding: 18px;
       overflow-y: auto;
@@ -1330,15 +1311,9 @@
     <aside id="sideMenu">
       <div class="menu-header">
         <h3>Параметры системы</h3>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <button id="btnHeaderLogout" class="btn-header-logout" title="Выйти из системы">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            <span>Выход</span>
-          </button>
-          <button id="btnCloseMenu" class="btn-icon" title="Закрыть">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
+        <button id="btnCloseMenu" class="btn-icon" title="Закрыть">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
 
       <div class="menu-content">
@@ -1471,10 +1446,6 @@
             <input type="checkbox" id="keepMasksCheck" checked style="accent-color: var(--accent);">
             <span>Оставлять обработанные участки</span>
           </label>
-          <button id="btnSectionLogout" class="btn-logout" style="margin-top: 10px; padding: 9px 14px; font-size: 13px;" title="Выйти и вернуться к вводу ключа">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            <span>Выход из системы</span>
-          </button>
         </div>
 
         <!-- Mobile Telemetry Section in Menu -->
@@ -2076,15 +2047,13 @@
       URL.revokeObjectURL(url);
     });
 
-    // Logout handlers (available in header, body, and footer)
+    // Logout handler (bottom red button in menu footer)
     function handleLogout() {
       closeMenu();
       disconnectToWelcome(false);
       addLog('Пользователь нажал Выход');
     }
     if ($('btnLogout')) $('btnLogout').addEventListener('click', handleLogout);
-    if ($('btnHeaderLogout')) $('btnHeaderLogout').addEventListener('click', handleLogout);
-    if ($('btnSectionLogout')) $('btnSectionLogout').addEventListener('click', handleLogout);
 
     // Check MapTiler API Key (checks through our server gateway first so it works without VPN)
     async function testApiKey(key) {
