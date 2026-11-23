@@ -4,9 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>TesseraMap</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="icon" type="image/png" href="/favicon.png">
-  <link rel="alternate icon" href="/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23000000'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' fill='%23e53935' font-family='Arial Black, Arial, sans-serif' font-weight='900' font-size='32' letter-spacing='-1.5'%3ETM%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3">
+  <link rel="icon" type="image/png" href="/favicon.png?v=3">
+  <link rel="shortcut icon" href="/favicon.ico?v=3">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
     :root {
@@ -105,39 +106,38 @@
       border-color: var(--accent);
     }
 
-    /* Floating Island: Top-Left Brand (NO line across screen) */
+    /* Floating Island: Top-Left Brand Logo (Compact, shown only on active map) */
     .island-brand {
       position: absolute;
       top: 16px;
       left: 16px;
-      z-index: 1300;
+      z-index: 1000;
       background: rgba(10, 10, 12, 0.9);
       backdrop-filter: blur(10px);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 14px 18px;
+      padding: 7px 14px;
       display: flex;
-      flex-direction: column;
-      gap: 6px;
+      align-items: center;
+      gap: 8px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
       transition: all 0.25s ease;
       pointer-events: auto;
     }
+    .island-brand.hidden {
+      display: none !important;
+      opacity: 0;
+      pointer-events: none;
+    }
     .brand-title {
-      font-size: 26px;
+      font-size: 18px;
       font-weight: 800;
-      letter-spacing: -0.03em;
+      letter-spacing: -0.02em;
       line-height: 1.1;
       color: var(--text);
     }
     .brand-title .red-ch {
       color: var(--accent);
-    }
-    .brand-subtext {
-      font-size: 13.5px;
-      color: var(--text-muted);
-      line-height: 1.5;
-      max-width: 580px;
     }
 
     /* Floating Island: Top-Right Telemetry */
@@ -334,7 +334,7 @@
     /* Floating Map Controls */
     .map-floating-bar {
       position: absolute;
-      top: 130px;
+      top: 58px;
       left: 16px;
       z-index: 500;
       display: flex;
@@ -594,17 +594,55 @@
       pointer-events: none;
     }
 
+    /* Welcome Screen: Title & Description Header + Card */
+    .welcome-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      width: 100%;
+      max-width: 540px;
+      animation: cardEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .welcome-header {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .welcome-title {
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: #ffffff;
+      margin: 0;
+    }
+    .welcome-title .red-ch {
+      color: var(--accent);
+    }
+    .welcome-desc {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.55;
+      text-align: center;
+      max-width: 500px;
+    }
+    .welcome-desc div {
+      margin-bottom: 2px;
+    }
+
     /* Welcome Card */
     .welcome-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 32px 28px;
+      padding: 30px 28px;
       width: 100%;
       max-width: 440px;
       text-align: center;
       box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-      animation: cardEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes cardEnter {
       from { opacity: 0; transform: translateY(12px) scale(0.98); }
@@ -828,14 +866,10 @@
       .island-brand {
         top: 12px;
         left: 12px;
-        padding: 6px 12px;
-        gap: 0;
+        padding: 5px 10px;
       }
       .brand-title {
-        font-size: 18px;
-      }
-      .brand-subtext {
-        display: none !important;
+        font-size: 16px;
       }
       .island-telemetry {
         display: none !important;
@@ -844,7 +878,7 @@
         display: inline-flex;
       }
       .map-floating-bar {
-        top: 60px;
+        top: 48px;
         left: 12px;
         right: 12px;
         justify-content: space-between;
@@ -852,24 +886,30 @@
       .floating-info-pill {
         display: none;
       }
+      .welcome-container {
+        gap: 16px;
+        padding: 0 12px;
+      }
+      .welcome-title {
+        font-size: 28px;
+      }
+      .welcome-desc {
+        font-size: 12px;
+        line-height: 1.45;
+      }
       .welcome-card {
-        padding: 24px 18px;
-        max-width: 90vw;
+        padding: 22px 16px;
+        max-width: 100%;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Floating Island Top-Left: Brand & Description (NO line across screen) -->
-  <div class="island-brand" id="brandIsland">
+  <!-- Floating Island Top-Left: Brand Logo on Map (only shown when map is active) -->
+  <div class="island-brand hidden" id="brandIsland">
     <div class="brand-title">
       <span class="red-ch">T</span>essera<span class="red-ch">M</span>ap
-    </div>
-    <div class="brand-subtext" id="brandSubtext">
-      <div>Чтож, этот сайт хостится в Германии, так что сорян, если пинг будет большой.</div>
-      <div>Вся обработка проводится на моём пк, так что если сервак не доступен - напишите мне.</div>
-      <div>Я так и быть (возможно) его включу.</div>
     </div>
   </div>
 
@@ -1118,21 +1158,33 @@
 
     <!-- Welcome Screen (Step 1 - Minimalist portfolio aesthetic) -->
     <div id="welcomeScreen" class="overlay-screen">
-      <div class="welcome-card">
-        <h2>Подключиться</h2>
-
-        <div class="input-group">
-          <label for="apiKeyInput">API ключ MapTiler:</label>
-          <div class="key-input-wrap">
-            <input type="text" id="apiKeyInput" placeholder="Вставьте ваш API ключ..." spellcheck="false" autocomplete="off">
+      <div class="welcome-container">
+        <!-- Brand title & description placed ABOVE the Connection window -->
+        <div class="welcome-header">
+          <h1 class="welcome-title"><span class="red-ch">T</span>essera<span class="red-ch">M</span>ap</h1>
+          <div class="welcome-desc">
+            <div>Чтож, этот сайт хостится в Германии, так что сорян, если пинг будет большой.</div>
+            <div>Вся обработка проводится на моём пк, так что если сервак не доступен - напишите мне.</div>
+            <div>Я так и быть (возможно) его включу.</div>
           </div>
-          <div id="apiKeyError" class="error-label">API не действительный.</div>
-          <a href="/maptiler_guide.pdf" target="_blank" class="guide-link">Что за API ключ от maptiler? Где его взять?</a>
         </div>
 
-        <button id="btnConnect" class="btn-red welcome-btn">
-          <span>Подключиться</span>
-        </button>
+        <div class="welcome-card">
+          <h2>Подключиться</h2>
+
+          <div class="input-group">
+            <label for="apiKeyInput">API ключ MapTiler:</label>
+            <div class="key-input-wrap">
+              <input type="text" id="apiKeyInput" placeholder="Вставьте ваш API ключ..." spellcheck="false" autocomplete="off">
+            </div>
+            <div id="apiKeyError" class="error-label">API не действительный.</div>
+            <a href="/maptiler_guide.pdf" target="_blank" class="guide-link">Что за API ключ от maptiler? Где его взять?</a>
+          </div>
+
+          <button id="btnConnect" class="btn-red welcome-btn">
+            <span>Подключиться</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1485,6 +1537,7 @@
       clearMasks();
       $('connectScreen').classList.add('hidden');
       $('welcomeScreen').classList.remove('hidden');
+      $('brandIsland').classList.add('hidden');
       $('telemetryIsland').classList.add('hidden');
       $('mapControlsBar').classList.add('hidden');
       $('connLostBadge').classList.remove('show');
@@ -1627,6 +1680,7 @@
         // Smooth fade out of connection overlay revealing the main app
         setTimeout(() => {
           $('connectScreen').classList.add('hidden');
+          $('brandIsland').classList.remove('hidden');
           $('telemetryIsland').classList.remove('hidden');
           $('mapControlsBar').classList.remove('hidden');
           isConnected = true;
@@ -1674,6 +1728,7 @@
       closeMenu();
       $('welcomeScreen').classList.add('hidden');
       $('connectScreen').classList.remove('hidden');
+      $('brandIsland').classList.add('hidden');
       $('telemetryIsland').classList.add('hidden');
       $('mapControlsBar').classList.add('hidden');
       setConnectionStatus('api_expired');
