@@ -45,6 +45,30 @@
       --accent-dark: #991b1b;
     }
 
+    /* Custom Brutalist Minimalist Scrollbars */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #2b2b36 transparent;
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #262632;
+      border-radius: 4px;
+      transition: background 0.15s ease;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: var(--font-sans);
@@ -461,6 +485,54 @@
       display: flex;
       flex-direction: column;
       gap: 18px;
+      scrollbar-width: thin;
+      scrollbar-color: #333342 transparent;
+    }
+    .menu-content::-webkit-scrollbar {
+      width: 5px;
+    }
+    .menu-content::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .menu-content::-webkit-scrollbar-thumb {
+      background: #333342;
+      border-radius: 3px;
+    }
+    .menu-content::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+
+    /* Reset button in model weight balance */
+    .btn-reset-weight {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-reset-weight:hover {
+      color: #ffffff;
+      background: var(--surface-hover);
+      border-color: var(--accent);
+    }
+    .btn-reset-weight:active svg {
+      transform: rotate(-180deg);
+      transition: transform 0.25s ease;
+    }
+    .btn-reset-weight.hidden {
+      opacity: 0;
+      transform: scale(0.8);
+      pointer-events: none;
+      display: none !important;
     }
 
     .menu-section {
@@ -1133,8 +1205,17 @@
 
           <!-- Weight distribution slider for YOLO + SegFormer ensemble -->
           <div id="ensembleWeightGroup" style="margin-top: 10px; padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px;">
-            <div style="font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 6px; letter-spacing: 0.02em;">
-              Баланс моделей:
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 0.02em;">
+                Баланс моделей:
+              </span>
+              <button id="btnResetWeight" class="btn-reset-weight hidden" title="Сбросить по умолчанию (0,4 / 0,6)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <path d="M3 3v5h5"/>
+                </svg>
+                <span>Сброс</span>
+              </button>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 4px;">
               <span>YOLO</span>
@@ -1959,9 +2040,24 @@
       $('segWeightVal').textContent = (segPercent % 10 === 0)
         ? (segPercent / 100).toFixed(1).replace('.', ',')
         : (segPercent / 100).toFixed(2).replace('.', ',');
+
+      const resetBtn = $('btnResetWeight');
+      if (resetBtn) {
+        if (segPercent !== 60) {
+          resetBtn.classList.remove('hidden');
+        } else {
+          resetBtn.classList.add('hidden');
+        }
+      }
     }
 
     $('weightSlider').addEventListener('input', updateWeightLabels);
+
+    $('btnResetWeight').addEventListener('click', () => {
+      $('weightSlider').value = 60;
+      updateWeightLabels();
+      showToast('Баланс моделей сброшен (0,4 / 0,6)');
+    });
 
     function syncModelSettingsVisibility() {
       const mode = $('modelModeSelect').value;
