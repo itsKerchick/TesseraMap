@@ -53,6 +53,8 @@ EXECUTOR = ThreadPoolExecutor(max_workers=1)
 START_TIME = time.time()
 ACTIVE_CLIENTS: dict[str, float] = {}
 CLIENT_LOCK = threading.Lock()
+GEO_CACHE: dict[tuple, str] = {}
+GEO_LOCK = threading.Lock()
 
 app = FastAPI(title="TesseraMap")
 app.add_middleware(
@@ -439,6 +441,47 @@ async def segment(payload: ViewportRequest):
         add_log("server", "Ошибка сегментации", req=req, error=f"{type(exc).__name__}: {str(exc)[:200]}")
         LOG.exception("Failed segmentation, request=%s", req)
         raise HTTPException(500, f"{type(exc).__name__}: {str(exc)[:200]}") from exc
+
+
+@app.get("/api/geocode")
+async def geocode(lat: float, lon: float, zoom: int):
+    # Bucket coords according to zoom to utilize cache effectively
+    r_lat = round(lat, 2 if zoom > 10 else 1)
+    r_lon = round(lon, 2 if zoom > 10 else 1)
+    z_bucket = min(zoom, 14)
+    key = (r_lat, r_lon, z_bucket)
+
+    with GEO_LOCK:
+        if key in GEO_CACHE:
+            return {"place": GEO_CACHE[key]}
+
+    target_zoom = 3 if zoom <= 5 else (8 if zoom <= 9 else 12)
+    url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}&zoom={target_zoom}&accept-language=ru"
+    try:
+        async with httpx.AsyncClient(timeout=3.5) as client:
+            resp = await client.get(url, headers={"User-Agent": "TesseraMap/1.0"})
+            if resp.status_code == 200:
+                data = resp.json()
+                addr = data.get("address", {})
+                if zoom <= 5:
+                    place = addr.get("country", "")
+                elif zoom <= 8:
+                    place = addr.get("state") or addr.get("country", "")
+                else:
+                    place = (
+                        addr.get("city")
+                        or addr.get("town")
+                        or addr.get("village")
+                        or addr.get("municipality")
+                        or addr.get("state")
+                        or addr.get("country", "")
+                    )
+                with GEO_LOCK:
+                    GEO_CACHE[key] = place
+                return {"place": place}
+    except Exception:
+        pass
+    return {"place": ""}
 
 
 if __name__ == "__main__":
