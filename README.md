@@ -1,5 +1,9 @@
 # TesseraMap 🛰️ — «Космический детектив»
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
+
 Интерактивная геоинформационная веб-система для семантической сегментации спутниковых снимков сверхвысокого разрешения на базе ансамбля нейросетей **YOLO26x** и **SegFormer-B5**.
 
 > 📌 **О проекте:**  
@@ -143,6 +147,7 @@ python download_weights.py
 
 ## 📄 Лицензия и материалы
 
+- Лицензия: **[GNU General Public License v3.0 (GPL-3.0)](LICENSE)**
 - Исследование моделей: [Investigation.docx](Investigation.docx)
 - Руководство по получению MapTiler API ключа: [maptiler_guide.docx](maptiler_guide.docx) / [maptiler_guide.pdf](maptiler_guide.pdf)
 - Инструкция по развёртыванию VPS: [DEPLOY.md](DEPLOY.md)
