@@ -130,12 +130,14 @@ tessera start
 - **YOLO26x**: `weights/yolo/best.pt` (~80.7 МБ)
 - **SegFormer-B5**: `weights/segformer/model.safetensors` (~338.5 МБ) и `config.json`
 
-Из-за ограничения GitHub на размер файлов (максимум 100 МБ на файл) большие веса размещены в **[GitHub Releases](../../releases)**.
+Из-за ограничения GitHub на размер файлов (максимум 100 МБ на файл) готовый архив с весами размещён на облачном хранилище:  
+📥 **[Скачать архив с моделями (Dropbox)](https://www.dropbox.com/scl/fo/tlmopc7m8ztcufy1cb7of/ALnVYS1YMse7pVmTnhtjYcA?rlkey=carjt86vleudkh35sf0vdf648&st=havn7ppz&dl=1)**
 
-Для автоматической загрузки весов в проект выполните:
+Для автоматической загрузки и распаковки весов в проект достаточно выполнить одну команду:
 ```bash
 python download_weights.py
 ```
+Скрипт сам скачает архив `Models_tessera.zip` и разложит веса в нужные подпапки (`weights/yolo/` и `weights/segformer/`).
 
 ---
 
