@@ -774,6 +774,17 @@
       font-family: var(--font-mono);
       display: none;
     }
+    .conn-actions-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+    .conn-actions-bar.hidden {
+      display: none !important;
+    }
 
     /* Logs Box matching reference */
     .logs-panel {
@@ -1208,6 +1219,19 @@
           Надеемся, что сервер жив
         </div>
 
+        <!-- Action Buttons when server is unavailable -->
+        <div class="conn-actions-bar hidden" id="connActionsBar">
+          <button id="btnRetryConn" class="btn-red" style="padding: 7px 14px; font-size: 12px;">
+            <span>Попробовать снова</span>
+          </button>
+          <button id="btnOpenOfflineMap" style="padding: 7px 14px; font-size: 12px;">
+            <span>Открыть карту (без сканирования)</span>
+          </button>
+          <button id="btnBackToKey" style="padding: 7px 12px; font-size: 12px;">
+            <span>Назад</span>
+          </button>
+        </div>
+
         <!-- Countdown for expired API -->
         <div class="conn-countdown" id="connCountdown">
           Возвращение на главную страницу через... <span id="countdownSec">5</span> сек.
@@ -1264,6 +1288,7 @@
     let satelliteLayer = null;
     let labelsLayer = null;
     let isConnected = false;
+    let isWorkerOnline = true;
     let telemetryTimer = null;
     let failCount = 0;
     let workerBusy = false;
@@ -1484,7 +1509,9 @@
       const title = $('connStatusTitle');
       const comment = $('connStatusComment');
       const countdown = $('connCountdown');
+      const actionsBar = $('connActionsBar');
       countdown.style.display = 'none';
+      if (actionsBar) actionsBar.classList.add('hidden');
 
       if (type === 'connecting') {
         title.textContent = 'Подключение...';
@@ -1498,10 +1525,12 @@
         title.textContent = 'Сервер не доступен :(';
         title.style.color = 'var(--danger)';
         comment.textContent = 'Ну...мда.\nМожете написать мне, тогда я его возможно запущу.';
+        if (actionsBar) actionsBar.classList.remove('hidden');
       } else if (type === 'error') {
         title.textContent = 'Что то пошло не так 0_0.';
         title.style.color = 'var(--danger)';
         comment.textContent = 'ну и КАК ОНО СЛОМАЛОСЬ?\nОбнови страницу. Если не помогает - кинь логи.';
+        if (actionsBar) actionsBar.classList.remove('hidden');
       } else if (type === 'api_expired') {
         title.textContent = 'API протух. Подключение остановлено.';
         title.style.color = 'var(--danger)';
@@ -1510,6 +1539,32 @@
         startRedirectCountdown(5);
       }
     }
+
+    $('btnRetryConn').addEventListener('click', () => {
+      setConnectionStatus('connecting');
+      startServerHandshake();
+    });
+
+    $('btnOpenOfflineMap').addEventListener('click', () => {
+      addLog('Пользователь открыл карту в режиме просмотра (ML оффлайн)');
+      attachSatelliteLayer(currentApiKey);
+      $('connectScreen').classList.add('hidden');
+      $('brandIsland').classList.remove('hidden');
+      $('telemetryIsland').classList.remove('hidden');
+      $('mapControlsBar').classList.remove('hidden');
+      $('connLostBadge').classList.add('show');
+      $('connLostBadge').querySelector('span:last-child').textContent = 'Сервер оффлайн';
+      isConnected = true;
+      isWorkerOnline = false;
+      showToast('Карта открыта (ML сервер оффлайн)');
+      if (!telemetryTimer) telemetryTimer = setInterval(pollTelemetry, 3000);
+      updateMapStatusPill();
+      triggerGeocode();
+    });
+
+    $('btnBackToKey').addEventListener('click', () => {
+      disconnectToWelcome(false);
+    });
 
     function startRedirectCountdown(sec = 5) {
       let remain = sec;
@@ -1661,6 +1716,13 @@
         addLog(`Сервер подключён: GPU=${data.gpu_name}, Uptime=${data.uptime}`);
         updateTelemetry(data);
 
+        if (data.worker_online === false) {
+          addLog('VPS веб-сервер доступен, но домашний ML-сервер сейчас оффлайн.', 'warning');
+          setConnectionStatus('server_unavailable');
+          return;
+        }
+
+        isWorkerOnline = true;
         // Attach Satellite Tile Layer
         attachSatelliteLayer(currentApiKey);
 
@@ -1754,44 +1816,56 @@
         recordTraffic(0, JSON.stringify(s).length);
         updateTelemetry(s);
 
-        // Connection is healthy
-        if (failCount > 0) {
-          failCount = 0;
+        if (s.worker_online === false) {
+          isWorkerOnline = false;
+          $('connLostBadge').classList.add('show');
+          $('connLostBadge').querySelector('span:last-child').textContent = 'Сервер оффлайн';
+        } else {
+          isWorkerOnline = true;
           $('connLostBadge').classList.remove('show');
-          addLog('Соединение с сервером восстановлено');
+          $('connLostBadge').querySelector('span:last-child').textContent = 'Соединение потеряно...';
+          if (failCount > 0) {
+            failCount = 0;
+            addLog('Соединение с сервером восстановлено');
+          }
         }
       } catch (e) {
         failCount++;
+        isWorkerOnline = false;
         $('telemPing').textContent = 'off';
         $('mTelemPing').textContent = 'off';
         if (failCount >= 2) {
           $('connLostBadge').classList.add('show');
+          $('connLostBadge').querySelector('span:last-child').textContent = 'Соединение потеряно...';
         }
       }
     }
 
     function updateTelemetry(s) {
-      const gpuShort = s.gpu_name ? s.gpu_name.replace('NVIDIA GeForce ', '') : '--';
+      const isOnline = s.worker_online !== false;
+      const gpuRaw = s.gpu_name || (isOnline ? 'NVIDIA GPU' : 'Сервер оффлайн');
+      const gpuShort = gpuRaw.replace('NVIDIA GeForce ', '');
       $('telemGpuName').textContent = gpuShort;
       $('mTelemGpuName').textContent = gpuShort;
 
-      if (s.gpu_load) {
-        $('telemGpuLoad').textContent = s.gpu_load;
-        $('mTelemGpuLoad').textContent = s.gpu_load;
-      }
-      if (s.gpu_load_val !== undefined) updateGpuCharts(s.gpu_load_val, s.gpu_mem);
-      if (s.active_users) {
-        $('telemUsers').textContent = s.active_users;
-        $('mTelemUsers').textContent = s.active_users;
-      }
-      if (s.uptime) {
-        $('telemUptime').textContent = s.uptime;
-        $('mTelemUptime').textContent = s.uptime;
-      }
-      if (s.client_ip) {
-        $('telemIp').textContent = s.client_ip;
-        $('mTelemIp').textContent = s.client_ip;
-      }
+      const loadNum = typeof s.gpu_load === 'number' ? s.gpu_load : (parseInt(s.gpu_load) || 0);
+      $('telemGpuLoad').textContent = `${loadNum}%`;
+      $('mTelemGpuLoad').textContent = `${loadNum}%`;
+
+      const memStr = s.gpu_memory || s.gpu_mem || '';
+      updateGpuCharts(loadNum, memStr);
+
+      const usersVal = s.users !== undefined ? s.users : (s.active_users || 1);
+      $('telemUsers').textContent = usersVal;
+      $('mTelemUsers').textContent = usersVal;
+
+      const uptimeVal = s.uptime || s.vps_uptime || '--:--:--';
+      $('telemUptime').textContent = uptimeVal;
+      $('mTelemUptime').textContent = uptimeVal;
+
+      const ipVal = s.ip || s.client_ip || '--';
+      $('telemIp').textContent = ipVal;
+      $('mTelemIp').textContent = ipVal;
     }
 
     // Dynamic Geolocation for the Status Pill (City / Country based on scale)
@@ -1880,6 +1954,10 @@
     }
 
     $('btnScan').addEventListener('click', () => {
+      if (!isWorkerOnline) {
+        showToast('Домашний ML-сервер сейчас оффлайн. Сканирование недоступно.');
+        return;
+      }
       if (map.getZoom() < MIN_SCAN_ZOOM) {
         showToast(`Приблизьте карту (zoom ${map.getZoom()} < ${MIN_SCAN_ZOOM})`);
         return;
@@ -1973,7 +2051,7 @@
     }
 
     function enqueueVisible() {
-      if (!isConnected || map.getZoom() < MIN_SCAN_ZOOM) return;
+      if (!isConnected || !isWorkerOnline || map.getZoom() < MIN_SCAN_ZOOM) return;
       activeGeneration++;
       const gen = activeGeneration;
       const sig = getSignature();
