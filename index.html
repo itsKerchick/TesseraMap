@@ -1131,12 +1131,22 @@
             </div>
           </div>
 
-          <div style="margin-top: 4px;">
-            <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:2px;">
-              <span>Вес SegFormer:</span>
-              <span id="weightValue">60%</span>
+          <!-- Weight distribution slider for YOLO + SegFormer ensemble -->
+          <div id="ensembleWeightGroup" style="margin-top: 10px; padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 6px; letter-spacing: 0.02em;">
+              Баланс моделей:
             </div>
-            <input type="range" id="weightSlider" min="0" max="100" step="5" value="60">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 4px;">
+              <span>YOLO</span>
+              <span>SegFormer</span>
+            </div>
+            <div class="slider-row" style="margin: 4px 0;">
+              <input type="range" id="weightSlider" min="0" max="100" step="5" value="60" style="width: 100%;">
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-family: var(--font-mono); color: var(--text-muted); font-weight: 700;">
+              <span id="yoloWeightVal">0,4</span>
+              <span id="segWeightVal">0,6</span>
+            </div>
           </div>
         </div>
 
@@ -1940,9 +1950,31 @@
       }
     });
 
-    $('weightSlider').addEventListener('input', () => {
-      $('weightValue').textContent = $('weightSlider').value + '%';
-    });
+    function updateWeightLabels() {
+      const segPercent = parseInt($('weightSlider').value, 10);
+      const yoloPercent = 100 - segPercent;
+      $('yoloWeightVal').textContent = (yoloPercent % 10 === 0)
+        ? (yoloPercent / 100).toFixed(1).replace('.', ',')
+        : (yoloPercent / 100).toFixed(2).replace('.', ',');
+      $('segWeightVal').textContent = (segPercent % 10 === 0)
+        ? (segPercent / 100).toFixed(1).replace('.', ',')
+        : (segPercent / 100).toFixed(2).replace('.', ',');
+    }
+
+    $('weightSlider').addEventListener('input', updateWeightLabels);
+
+    function syncModelSettingsVisibility() {
+      const mode = $('modelModeSelect').value;
+      if (mode === 'ensemble') {
+        $('ensembleWeightGroup').style.display = 'block';
+      } else {
+        $('ensembleWeightGroup').style.display = 'none';
+      }
+    }
+
+    $('modelModeSelect').addEventListener('change', syncModelSettingsVisibility);
+    updateWeightLabels();
+    syncModelSettingsVisibility();
 
     // Real-time button toggle
     $('btnAutoScan').addEventListener('click', () => {
