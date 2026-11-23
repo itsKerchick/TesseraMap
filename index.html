@@ -47,11 +47,13 @@
       background: var(--bg);
       color: var(--text);
       height: 100vh;
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
       user-select: none;
     }
 
-    /* Flat Clean Controls */
+    /* Flat Clean Controls with smooth transitions */
     button {
       font-family: inherit;
       cursor: pointer;
@@ -59,7 +61,7 @@
       border-radius: 4px;
       background: var(--surface-2);
       color: var(--text);
-      transition: background 0.12s ease, border-color 0.12s ease;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -94,33 +96,29 @@
       padding: 10px 12px;
       font-size: 13px;
       outline: none;
-      transition: border-color 0.12s ease;
+      transition: border-color 0.15s ease, background 0.15s ease;
     }
     input[type=text]:focus, select:focus {
       border-color: var(--accent);
     }
 
-    /* Top Header & Telemetry */
+    /* Top Header & Telemetry: in normal document flow to eliminate clipping */
     #topHeader {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      min-height: 56px;
+      flex-shrink: 0;
       background: var(--bg);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 16px;
+      padding: 10px 20px;
       z-index: 1000;
-      gap: 16px;
+      gap: 20px;
     }
 
     .brand-section {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
     .brand-title {
       font-size: 20px;
@@ -135,8 +133,8 @@
     .brand-subtext {
       font-size: 11px;
       color: var(--text-muted);
-      line-height: 1.35;
-      max-width: 580px;
+      line-height: 1.4;
+      max-width: 600px;
     }
 
     /* Telemetry Bar */
@@ -182,6 +180,10 @@
       border: 1px solid #1c1c22;
       border-radius: 2px;
       margin-left: 4px;
+      transition: border-color 0.15s ease;
+    }
+    .sparkline-box:hover .sparkline-svg {
+      border-color: var(--accent);
     }
     .sparkline-svg path {
       fill: none;
@@ -191,12 +193,11 @@
       stroke-linejoin: round;
     }
 
-    /* Expanded GPU Chart Tooltip */
+    /* Expanded GPU Chart Tooltip with smooth animation */
     .gpu-expanded-chart {
       position: absolute;
-      top: 100%;
+      top: calc(100% + 8px);
       right: 0;
-      margin-top: 8px;
       background: #050507;
       border: 1px solid var(--border-light);
       border-radius: 6px;
@@ -206,11 +207,16 @@
       flex-direction: column;
       gap: 6px;
       width: 220px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.9);
       pointer-events: none;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .sparkline-box:hover .gpu-expanded-chart {
       display: flex;
+      opacity: 1;
+      transform: translateY(0);
     }
     .gpu-expanded-chart .chart-header {
       display: flex;
@@ -225,13 +231,11 @@
       border: 1px solid #1a1a20;
     }
 
-    /* Main Container & Leaflet Map */
+    /* Main Container & Leaflet Map: takes all remaining height */
     #mainApp {
-      position: absolute;
-      top: 56px;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      flex: 1;
+      position: relative;
+      min-height: 0;
       background: var(--bg);
     }
     #map {
@@ -240,11 +244,11 @@
       background: #000000;
     }
 
-    /* Floating Map Controls */
+    /* Floating Map Controls positioned cleanly without collisions */
     .map-floating-bar {
       position: absolute;
-      top: 14px;
-      left: 14px;
+      top: 16px;
+      left: 16px;
       z-index: 500;
       display: flex;
       gap: 8px;
@@ -252,6 +256,8 @@
       border: 1px solid var(--border);
       padding: 5px;
       border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: all 0.2s ease;
     }
     .floating-info-pill {
       display: flex;
@@ -265,8 +271,8 @@
 
     .btn-toggle-menu {
       position: absolute;
-      top: 14px;
-      right: 14px;
+      top: 16px;
+      right: 16px;
       z-index: 500;
       background: var(--bg);
       border: 1px solid var(--border);
@@ -275,13 +281,50 @@
       font-size: 13px;
       font-weight: 700;
       color: var(--text);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: all 0.2s ease;
     }
     .btn-toggle-menu:hover { border-color: var(--accent); }
 
-    /* Side Drawer Menu */
+    /* Custom Leaflet Zoom control styling in bottom right */
+    .leaflet-bottom.leaflet-right .leaflet-control-zoom {
+      border: 1px solid var(--border) !important;
+      border-radius: 4px !important;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+    }
+    .leaflet-control-zoom a {
+      background: var(--surface) !important;
+      color: var(--text) !important;
+      border-bottom: 1px solid var(--border) !important;
+      transition: background 0.15s ease !important;
+    }
+    .leaflet-control-zoom a:hover {
+      background: var(--surface-hover) !important;
+    }
+
+    /* Side Drawer Menu Backdrop */
+    #sideMenuBackdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 850;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+    #sideMenuBackdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Side Drawer Menu with smooth slide animation */
     #sideMenu {
       position: absolute;
-      top: 56px;
+      top: 0;
       right: 0;
       bottom: 0;
       width: 360px;
@@ -292,7 +335,8 @@
       display: flex;
       flex-direction: column;
       transform: translateX(100%);
-      transition: transform 0.2s ease;
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -8px 0 24px rgba(0,0,0,0.6);
     }
     #sideMenu.open { transform: translateX(0); }
 
@@ -345,9 +389,9 @@
       border-radius: 4px;
       cursor: pointer;
       font-size: 12px;
-      transition: background 0.1s ease;
+      transition: background 0.12s ease, border-color 0.12s ease;
     }
-    .layer-card:hover { background: var(--surface-hover); }
+    .layer-card:hover { background: var(--surface-hover); border-color: var(--border-light); }
     .layer-card input { cursor: pointer; accent-color: var(--accent); }
     .layer-swatch {
       width: 9px;
@@ -397,16 +441,17 @@
       justify-content: center;
       gap: 8px;
       cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
     .btn-logout:hover {
       background: var(--accent-hover);
       border-color: var(--accent-hover);
     }
 
-    /* Modal Overlays (Welcome & Connection) */
+    /* Modal Overlays with smooth fade & scale transitions */
     .overlay-screen {
-      position: fixed;
-      top: 56px;
+      position: absolute;
+      top: 0;
       left: 0;
       right: 0;
       bottom: 0;
@@ -416,11 +461,15 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      transition: opacity 0.25s ease, visibility 0.25s ease;
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .overlay-screen.hidden {
       opacity: 0;
       visibility: hidden;
+      transform: scale(0.97);
       pointer-events: none;
     }
 
@@ -433,6 +482,12 @@
       width: 100%;
       max-width: 440px;
       text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      animation: cardEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes cardEnter {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
     .welcome-card h2 {
       font-size: 22px;
@@ -463,6 +518,12 @@
     }
     .key-input-wrap input.invalid {
       border-color: var(--danger);
+      animation: shake 0.3s ease;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
     }
     .error-label {
       font-size: 12px;
@@ -480,6 +541,7 @@
       display: inline-block;
       margin-top: 6px;
       font-weight: 500;
+      transition: color 0.15s ease;
     }
     .guide-link:hover { text-decoration: underline; color: var(--accent-hover); }
 
@@ -499,6 +561,7 @@
       align-items: center;
       text-align: center;
       gap: 18px;
+      animation: cardEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     /* Flat Radar Indicator */
@@ -536,6 +599,7 @@
       font-size: 26px;
       font-weight: 800;
       letter-spacing: -0.02em;
+      transition: color 0.25s ease;
     }
     .conn-status-comment {
       font-size: 14px;
@@ -590,23 +654,23 @@
       overflow-wrap: anywhere;
     }
 
-    /* Toast */
+    /* Toast with smooth slide and fade */
     #toast {
       position: fixed;
-      bottom: 20px;
+      bottom: 24px;
       left: 50%;
       transform: translateX(-50%) translateY(30px);
       background: var(--surface);
       color: var(--text);
       border: 1px solid var(--border);
-      padding: 8px 14px;
+      padding: 8px 16px;
       border-radius: 4px;
       font-size: 12px;
       font-weight: 600;
       z-index: 2000;
       opacity: 0;
       pointer-events: none;
-      transition: all 0.15s ease;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
     #toast.show {
       transform: translateX(-50%) translateY(0);
@@ -630,6 +694,7 @@
       align-items: center;
       gap: 6px;
       white-space: nowrap;
+      transition: opacity 0.12s ease;
     }
     .hover-badge-dot {
       width: 9px;
@@ -637,10 +702,8 @@
       border-radius: 1px;
     }
 
-    @media (max-width: 900px) {
-      #topHeader { flex-direction: column; align-items: flex-start; gap: 8px; min-height: auto; }
-      #mainApp { top: 96px; }
-      #sideMenu { top: 96px; }
+    @media (max-width: 950px) {
+      #topHeader { flex-direction: column; align-items: flex-start; gap: 10px; }
       .telemetry-bar { justify-content: flex-start; }
     }
   </style>
@@ -748,190 +811,193 @@
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       <span>Параметры</span>
     </button>
+
+    <!-- Side Drawer Menu Backdrop -->
+    <div id="sideMenuBackdrop"></div>
+
+    <!-- Side Drawer Menu -->
+    <aside id="sideMenu">
+      <div class="menu-header">
+        <h3>Параметры системы</h3>
+        <button id="btnCloseMenu" class="btn-icon" title="Закрыть">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="menu-content">
+        <!-- Theme Switcher -->
+        <div class="menu-section">
+          <div class="section-title">Тема интерфейса</div>
+          <button id="btnToggleTheme" style="padding: 8px; justify-content: flex-start;">
+            <span id="themeIcon">🌙</span>
+            <span id="themeLabel">Тёмная тема</span>
+          </button>
+        </div>
+
+        <!-- Class Layer Selection -->
+        <div class="menu-section">
+          <div class="section-title">
+            <span>Отображение слоёв</span>
+            <div style="display:flex; gap:6px;">
+              <a href="#" id="btnSelectAllLayers" style="font-size:10px; color:var(--text-muted); text-decoration:none;">Все</a>
+              <span style="color:var(--text-subtle);">·</span>
+              <a href="#" id="btnDeselectAllLayers" style="font-size:10px; color:var(--text-muted); text-decoration:none;">Снять</a>
+            </div>
+          </div>
+          <div class="layer-grid" id="layerGrid"></div>
+        </div>
+
+        <!-- Opacity Slider -->
+        <div class="menu-section">
+          <div class="section-title">
+            <span>Прозрачность выделения</span>
+            <span class="slider-val" id="opacityValue">65%</span>
+          </div>
+          <div class="slider-row">
+            <input type="range" id="opacitySlider" min="0" max="100" step="5" value="65">
+          </div>
+        </div>
+
+        <!-- Scanner ML Settings: Updated name to "Объединение YOLO + SegFormer" -->
+        <div class="menu-section">
+          <div class="section-title">Сканер ML</div>
+
+          <label style="font-size:11px; color:var(--text-muted);">Модель:</label>
+          <select id="modelModeSelect">
+            <option value="ensemble" selected>Объединение YOLO + SegFormer</option>
+            <option value="yolo">Только YOLO26x</option>
+            <option value="segformer">Только SegFormer-B5</option>
+          </select>
+
+          <label style="font-size:11px; color:var(--text-muted); margin-top:4px;">Режим обработки:</label>
+          <select id="modeSelect">
+            <option value="Тайлы" selected>Тайлы (высокая точность)</option>
+            <option value="Один проход">Один проход (быстро)</option>
+          </select>
+
+          <div style="display: flex; gap: 8px; margin-top: 4px;">
+            <div style="flex:1;">
+              <label style="font-size:10px; color:var(--text-subtle);">Размер тайла:</label>
+              <select id="tileSizeSelect">
+                <option value="384">384</option>
+                <option value="512" selected>512</option>
+                <option value="768">768</option>
+                <option value="1024">1024</option>
+              </select>
+            </div>
+            <div style="flex:1;">
+              <label style="font-size:10px; color:var(--text-subtle);">Перекрытие:</label>
+              <select id="overlapSelect">
+                <option value="0">0</option>
+                <option value="64">64</option>
+                <option value="128" selected>128</option>
+                <option value="192">192</option>
+                <option value="256">256</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top: 4px;">
+            <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:2px;">
+              <span>Вес SegFormer:</span>
+              <span id="weightValue">60%</span>
+            </div>
+            <input type="range" id="weightSlider" min="0" max="100" step="5" value="60">
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="menu-section">
+          <div class="section-title">Действия</div>
+          <button id="btnClearMasks" style="padding: 8px; font-weight: 600;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <span>Очистить маски на карте</span>
+          </button>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); cursor: pointer; margin-top: 4px;">
+            <input type="checkbox" id="keepMasksCheck" checked style="accent-color: var(--accent);">
+            <span>Оставлять обработанные участки</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Menu Footer with Red Logout Button -->
+      <div class="menu-footer">
+        <button id="btnLogout" class="btn-logout" title="Выйти и вернуться к вводу ключа">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Выход</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Welcome Screen (Step 1 - Minimalist portfolio aesthetic) -->
+    <div id="welcomeScreen" class="overlay-screen">
+      <div class="welcome-card">
+        <h2>Подключиться</h2>
+
+        <div class="input-group">
+          <label for="apiKeyInput">API ключ MapTiler:</label>
+          <div class="key-input-wrap">
+            <input type="text" id="apiKeyInput" placeholder="Вставьте ваш API ключ..." spellcheck="false" autocomplete="off">
+          </div>
+          <div id="apiKeyError" class="error-label">API не действительный.</div>
+          <a href="/maptiler_guide.pdf" target="_blank" class="guide-link">Что за API ключ от maptiler? Где его взять?</a>
+        </div>
+
+        <button id="btnConnect" class="btn-red welcome-btn">
+          <span>Подключиться</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Connection Status Screen (Step 2 - Matches reference) -->
+    <div id="connectScreen" class="overlay-screen hidden">
+      <div class="connect-screen-box">
+        <!-- Center Radar -->
+        <div class="radar-indicator">
+          <div class="radar-circle"></div>
+          <div class="radar-circle"></div>
+          <div class="radar-circle"></div>
+          <div class="radar-core"></div>
+        </div>
+
+        <!-- Status Header -->
+        <div class="conn-status-title" id="connStatusTitle">Подключение...</div>
+
+        <!-- Status Subtext / Comment -->
+        <div class="conn-status-comment" id="connStatusComment">
+          Идёт подключение к серверу...
+          Надеемся, что сервер жив
+        </div>
+
+        <!-- Countdown for expired API -->
+        <div class="conn-countdown" id="connCountdown">
+          Возвращение на главную страницу через... <span id="countdownSec">5</span> сек.
+        </div>
+
+        <!-- Logs panel -->
+        <div class="logs-panel">
+          <div class="logs-panel-header">
+            <span>Логи подключения клиента</span>
+            <div class="logs-actions">
+              <button id="btnCopyLogs" class="btn-icon" title="Скопировать последние важные строки">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+              <button id="btnDownloadLogs" class="btn-icon" title="Скачать полные логи">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <pre class="logs-console" id="connLogsConsole"></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Hover Tooltip for Segments -->
+    <div id="hoverTooltip">
+      <span class="hover-badge-dot" id="tooltipDot"></span>
+      <span id="tooltipText">Здание</span>
+    </div>
   </main>
-
-  <!-- Side Drawer Menu -->
-  <aside id="sideMenu">
-    <div class="menu-header">
-      <h3>Параметры системы</h3>
-      <button id="btnCloseMenu" class="btn-icon" title="Закрыть">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-
-    <div class="menu-content">
-      <!-- Theme Switcher -->
-      <div class="menu-section">
-        <div class="section-title">Тема интерфейса</div>
-        <button id="btnToggleTheme" style="padding: 8px; justify-content: flex-start;">
-          <span id="themeIcon">🌙</span>
-          <span id="themeLabel">Тёмная тема</span>
-        </button>
-      </div>
-
-      <!-- Class Layer Selection -->
-      <div class="menu-section">
-        <div class="section-title">
-          <span>Отображение слоёв</span>
-          <div style="display:flex; gap:6px;">
-            <a href="#" id="btnSelectAllLayers" style="font-size:10px; color:var(--text-muted); text-decoration:none;">Все</a>
-            <span style="color:var(--text-subtle);">·</span>
-            <a href="#" id="btnDeselectAllLayers" style="font-size:10px; color:var(--text-muted); text-decoration:none;">Снять</a>
-          </div>
-        </div>
-        <div class="layer-grid" id="layerGrid"></div>
-      </div>
-
-      <!-- Opacity Slider -->
-      <div class="menu-section">
-        <div class="section-title">
-          <span>Прозрачность выделения</span>
-          <span class="slider-val" id="opacityValue">65%</span>
-        </div>
-        <div class="slider-row">
-          <input type="range" id="opacitySlider" min="0" max="100" step="5" value="65">
-        </div>
-      </div>
-
-      <!-- Scanner ML Settings -->
-      <div class="menu-section">
-        <div class="section-title">Сканер ML</div>
-
-        <label style="font-size:11px; color:var(--text-muted);">Модель:</label>
-        <select id="modelModeSelect">
-          <option value="ensemble" selected>Ансамбль YOLO + SegFormer</option>
-          <option value="yolo">Только YOLO26x</option>
-          <option value="segformer">Только SegFormer-B5</option>
-        </select>
-
-        <label style="font-size:11px; color:var(--text-muted); margin-top:4px;">Режим обработки:</label>
-        <select id="modeSelect">
-          <option value="Тайлы" selected>Тайлы (высокая точность)</option>
-          <option value="Один проход">Один проход (быстро)</option>
-        </select>
-
-        <div style="display: flex; gap: 8px; margin-top: 4px;">
-          <div style="flex:1;">
-            <label style="font-size:10px; color:var(--text-subtle);">Размер тайла:</label>
-            <select id="tileSizeSelect">
-              <option value="384">384</option>
-              <option value="512" selected>512</option>
-              <option value="768">768</option>
-              <option value="1024">1024</option>
-            </select>
-          </div>
-          <div style="flex:1;">
-            <label style="font-size:10px; color:var(--text-subtle);">Перекрытие:</label>
-            <select id="overlapSelect">
-              <option value="0">0</option>
-              <option value="64">64</option>
-              <option value="128" selected>128</option>
-              <option value="192">192</option>
-              <option value="256">256</option>
-            </select>
-          </div>
-        </div>
-
-        <div style="margin-top: 4px;">
-          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:2px;">
-            <span>Вес SegFormer:</span>
-            <span id="weightValue">60%</span>
-          </div>
-          <input type="range" id="weightSlider" min="0" max="100" step="5" value="60">
-        </div>
-      </div>
-
-      <!-- Actions -->
-      <div class="menu-section">
-        <div class="section-title">Действия</div>
-        <button id="btnClearMasks" style="padding: 8px; font-weight: 600;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          <span>Очистить маски на карте</span>
-        </button>
-        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); cursor: pointer; margin-top: 4px;">
-          <input type="checkbox" id="keepMasksCheck" checked style="accent-color: var(--accent);">
-          <span>Оставлять обработанные участки</span>
-        </label>
-      </div>
-    </div>
-
-    <!-- Menu Footer with Red Logout Button -->
-    <div class="menu-footer">
-      <button id="btnLogout" class="btn-logout" title="Выйти и вернуться к вводу ключа">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        <span>Выход</span>
-      </button>
-    </div>
-  </aside>
-
-  <!-- Welcome Screen (Step 1 - Minimalist portfolio aesthetic) -->
-  <div id="welcomeScreen" class="overlay-screen">
-    <div class="welcome-card">
-      <h2>Подключиться</h2>
-
-      <div class="input-group">
-        <label for="apiKeyInput">API ключ MapTiler:</label>
-        <div class="key-input-wrap">
-          <input type="text" id="apiKeyInput" placeholder="Вставьте ваш API ключ..." spellcheck="false" autocomplete="off">
-        </div>
-        <div id="apiKeyError" class="error-label">API не действительный.</div>
-        <a href="/maptiler_guide.pdf" target="_blank" class="guide-link">Что за API ключ от maptiler? Где его взять?</a>
-      </div>
-
-      <button id="btnConnect" class="btn-red welcome-btn">
-        <span>Подключиться</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Connection Status Screen (Step 2 - Matches reference) -->
-  <div id="connectScreen" class="overlay-screen hidden">
-    <div class="connect-screen-box">
-      <!-- Center Radar -->
-      <div class="radar-indicator">
-        <div class="radar-circle"></div>
-        <div class="radar-circle"></div>
-        <div class="radar-circle"></div>
-        <div class="radar-core"></div>
-      </div>
-
-      <!-- Status Header -->
-      <div class="conn-status-title" id="connStatusTitle">Подключение...</div>
-
-      <!-- Status Subtext / Comment -->
-      <div class="conn-status-comment" id="connStatusComment">
-        Идёт подключение к серверу...
-        Надеемся, что сервер жив
-      </div>
-
-      <!-- Countdown for expired API -->
-      <div class="conn-countdown" id="connCountdown">
-        Возвращение на главную страницу через... <span id="countdownSec">5</span> сек.
-      </div>
-
-      <!-- Logs panel -->
-      <div class="logs-panel">
-        <div class="logs-panel-header">
-          <span>Логи подключения клиента</span>
-          <div class="logs-actions">
-            <button id="btnCopyLogs" class="btn-icon" title="Скопировать последние важные строки">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            </button>
-            <button id="btnDownloadLogs" class="btn-icon" title="Скачать полные логи">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            </button>
-          </div>
-        </div>
-        <pre class="logs-console" id="connLogsConsole"></pre>
-      </div>
-    </div>
-  </div>
-
-  <!-- Interactive Hover Tooltip for Segments -->
-  <div id="hoverTooltip">
-    <span class="hover-badge-dot" id="tooltipDot"></span>
-    <span id="tooltipText">Здание</span>
-  </div>
 
   <!-- Toast Message -->
   <div id="toast"></div>
@@ -1016,8 +1082,8 @@
       if (memStr) $('expandedGpuMem').textContent = memStr;
     }
 
-    // Toast helper
-    function showToast(text, ms = 2000) {
+    // Toast helper with smooth animation
+    function showToast(text, ms = 2200) {
       const t = $('toast');
       t.textContent = text;
       t.classList.add('show');
@@ -1047,12 +1113,15 @@
     }
 
     // Leaflet map setup - Initial center: Rostov-on-Don (47.2357, 39.7015), zoom 16
+    // Default zoom control disabled; moved to bottomright so it never collides with toolbar!
     const map = L.map('map', {
       zoomSnap: 1,
       zoomDelta: 1,
       preferCanvas: true,
-      zoomControl: true
+      zoomControl: false
     }).setView([47.2357, 39.7015], 16);
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     const maskPane = map.createPane('maskPane');
     maskPane.style.zIndex = '450';
@@ -1125,9 +1194,18 @@
     });
     setTheme(localStorage.getItem('tesseramap_theme') || 'dark');
 
-    // Drawer Menu Toggle
-    $('btnOpenMenu').addEventListener('click', () => $('sideMenu').classList.add('open'));
-    $('btnCloseMenu').addEventListener('click', () => $('sideMenu').classList.remove('open'));
+    // Drawer Menu Toggle with Backdrop
+    function openMenu() {
+      $('sideMenu').classList.add('open');
+      $('sideMenuBackdrop').classList.add('open');
+    }
+    function closeMenu() {
+      $('sideMenu').classList.remove('open');
+      $('sideMenuBackdrop').classList.remove('open');
+    }
+    $('btnOpenMenu').addEventListener('click', openMenu);
+    $('btnCloseMenu').addEventListener('click', closeMenu);
+    $('sideMenuBackdrop').addEventListener('click', closeMenu);
 
     // Status & Comment Controller for Connection Screen
     function setConnectionStatus(type) {
@@ -1224,7 +1302,7 @@
 
     // Logout
     $('btnLogout').addEventListener('click', () => {
-      $('sideMenu').classList.remove('open');
+      closeMenu();
       disconnectToWelcome(false);
       addLog('Пользователь нажал Выход');
     });
@@ -1283,7 +1361,7 @@
       $('btnConnect').disabled = false;
       $('btnConnect').textContent = 'Подключиться';
 
-      // Transition to Connection Status Screen
+      // Transition to Connection Status Screen with smooth animation
       $('welcomeScreen').classList.add('hidden');
       $('connectScreen').classList.remove('hidden');
       setConnectionStatus('connecting');
@@ -1316,7 +1394,7 @@
           telemetryTimer = setInterval(pollTelemetry, 2500);
         }
 
-        // Smooth transition to main app
+        // Smooth fade out of connection overlay revealing the main app
         setTimeout(() => {
           $('connectScreen').classList.add('hidden');
           isConnected = true;
@@ -1361,7 +1439,7 @@
 
     function triggerApiExpired() {
       addLog('Критическая ошибка: MapTiler API ключ отклонён (401/403)', 'error');
-      $('sideMenu').classList.remove('open');
+      closeMenu();
       $('welcomeScreen').classList.add('hidden');
       $('connectScreen').classList.remove('hidden');
       setConnectionStatus('api_expired');
