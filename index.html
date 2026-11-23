@@ -7,42 +7,38 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
     :root {
-      --bg: #090a0f;
-      --surface: #12131a;
-      --surface-2: #181a24;
-      --surface-hover: #222533;
-      --border: #262938;
-      --border-accent: #e53935;
-      --text: #f3f4f6;
-      --text-muted: #8c93a8;
-      --text-subtle: #5f667d;
+      --bg: #000000;
+      --surface: #0a0a0c;
+      --surface-2: #121216;
+      --surface-hover: #1c1c22;
+      --border: #222228;
+      --border-light: #33333e;
+      --text: #ffffff;
+      --text-muted: #888892;
+      --text-subtle: #555560;
       --accent: #e53935;
-      --accent-hover: #ef4444;
-      --accent-glow: rgba(229, 57, 53, 0.28);
-      --accent-subtle: rgba(229, 57, 53, 0.12);
+      --accent-hover: #ff4d49;
+      --accent-dark: #b71c1c;
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
-      --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-mono: 'JetBrains Mono', Consolas, 'Fira Code', monospace;
     }
 
     [data-theme="light"] {
-      --bg: #f3f4f7;
+      --bg: #f8f9fa;
       --surface: #ffffff;
-      --surface-2: #e9ecf2;
-      --surface-hover: #dfe3ea;
-      --border: #d4d8e3;
-      --border-accent: #d32f2f;
-      --text: #13151f;
-      --text-muted: #575e75;
-      --text-subtle: #8990a5;
+      --surface-2: #f1f3f6;
+      --surface-hover: #e4e7eb;
+      --border: #dcdfe6;
+      --border-light: #c0c4cc;
+      --text: #0d0e12;
+      --text-muted: #5e6473;
+      --text-subtle: #8d95a5;
       --accent: #d32f2f;
       --accent-hover: #b71c1c;
-      --accent-glow: rgba(211, 47, 47, 0.22);
-      --accent-subtle: rgba(211, 47, 47, 0.08);
-      --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      --accent-dark: #991b1b;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -55,38 +51,38 @@
       user-select: none;
     }
 
-    /* Common Components */
+    /* Flat Clean Controls */
     button {
       font-family: inherit;
       cursor: pointer;
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 4px;
       background: var(--surface-2);
       color: var(--text);
-      transition: all 0.15s ease;
+      transition: background 0.12s ease, border-color 0.12s ease;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
+      outline: none;
     }
-    button:hover { background: var(--surface-hover); border-color: var(--text-subtle); }
+    button:hover { background: var(--surface-hover); border-color: var(--border-light); }
     button:active { transform: translateY(1px); }
-    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .btn-red {
       background: var(--accent);
-      border-color: var(--accent-hover);
+      border-color: var(--accent);
       color: #fff;
-      font-weight: 600;
-      box-shadow: 0 2px 10px var(--accent-glow);
+      font-weight: 700;
     }
-    .btn-red:hover { background: var(--accent-hover); border-color: #ff6b6b; }
+    .btn-red:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 
     .btn-icon {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       padding: 0;
-      border-radius: 6px;
+      border-radius: 4px;
     }
 
     input[type=text], select {
@@ -94,93 +90,145 @@
       background: var(--surface-2);
       border: 1px solid var(--border);
       color: var(--text);
-      border-radius: 8px;
-      padding: 10px 14px;
+      border-radius: 4px;
+      padding: 10px 12px;
       font-size: 13px;
       outline: none;
-      transition: all 0.15s ease;
+      transition: border-color 0.12s ease;
     }
     input[type=text]:focus, select:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
     }
 
-    /* Top Telemetry / Header Bar */
+    /* Top Header & Telemetry */
     #topHeader {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 52px;
-      background: rgba(18, 19, 26, 0.92);
-      backdrop-filter: blur(12px);
+      min-height: 56px;
+      background: var(--bg);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
+      padding: 8px 16px;
       z-index: 1000;
-    }
-    [data-theme="light"] #topHeader {
-      background: rgba(255, 255, 255, 0.92);
+      gap: 16px;
     }
 
     .brand-section {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
+      gap: 2px;
     }
-    .brand-logo {
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .brand-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--text);
     }
-    .brand-dot {
-      width: 10px;
-      height: 10px;
-      background: var(--accent);
-      border-radius: 2px;
-      box-shadow: 0 0 8px var(--accent);
+    .brand-title .red-ch {
+      color: var(--accent);
     }
-    .brand-desc {
+    .brand-subtext {
       font-size: 11px;
       color: var(--text-muted);
-      border-left: 1px solid var(--border);
-      padding-left: 10px;
+      line-height: 1.35;
+      max-width: 580px;
     }
 
-    /* Telemetry grid on the top right */
+    /* Telemetry Bar */
     .telemetry-bar {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       font-size: 11px;
       font-family: var(--font-mono);
       color: var(--text-muted);
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
     .telem-item {
       display: flex;
       align-items: center;
       gap: 5px;
       white-space: nowrap;
+      position: relative;
     }
-    .telem-label { color: var(--text-subtle); text-transform: uppercase; font-size: 10px; }
-    .telem-value { color: var(--text); font-weight: 500; }
-    .telem-status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--success);
-      display: inline-block;
+    .telem-label {
+      color: var(--text-subtle);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .telem-value {
+      color: var(--text);
+      font-weight: 600;
     }
 
-    /* Main Container & Map */
+    /* Sparkline & Expandable GPU Graph */
+    .sparkline-box {
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+    }
+    .sparkline-svg {
+      width: 52px;
+      height: 18px;
+      background: #0d0d10;
+      border: 1px solid #1c1c22;
+      border-radius: 2px;
+      margin-left: 4px;
+    }
+    .sparkline-svg path {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Expanded GPU Chart Tooltip */
+    .gpu-expanded-chart {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 8px;
+      background: #050507;
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 10px 12px;
+      z-index: 1500;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      width: 220px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+      pointer-events: none;
+    }
+    .sparkline-box:hover .gpu-expanded-chart {
+      display: flex;
+    }
+    .gpu-expanded-chart .chart-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .gpu-expanded-chart svg {
+      width: 100%;
+      height: 70px;
+      background: #000;
+      border: 1px solid #1a1a20;
+    }
+
+    /* Main Container & Leaflet Map */
     #mainApp {
       position: absolute;
-      top: 52px;
+      top: 56px;
       left: 0;
       right: 0;
       bottom: 0;
@@ -189,26 +237,21 @@
     #map {
       width: 100%;
       height: 100%;
-      background: #0b0f14;
+      background: #000000;
     }
 
     /* Floating Map Controls */
     .map-floating-bar {
       position: absolute;
       top: 14px;
-      left: 16px;
+      left: 14px;
       z-index: 500;
       display: flex;
       gap: 8px;
-      background: rgba(18, 19, 26, 0.88);
-      backdrop-filter: blur(10px);
-      padding: 6px;
-      border-radius: 10px;
+      background: var(--bg);
       border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-    [data-theme="light"] .map-floating-bar {
-      background: rgba(255, 255, 255, 0.88);
+      padding: 5px;
+      border-radius: 4px;
     }
     .floating-info-pill {
       display: flex;
@@ -223,99 +266,93 @@
     .btn-toggle-menu {
       position: absolute;
       top: 14px;
-      right: 16px;
+      right: 14px;
       z-index: 500;
-      background: rgba(18, 19, 26, 0.88);
-      backdrop-filter: blur(10px);
+      background: var(--bg);
       border: 1px solid var(--border);
       padding: 8px 14px;
-      border-radius: 10px;
+      border-radius: 4px;
       font-size: 13px;
-      font-weight: 600;
-      box-shadow: var(--shadow);
+      font-weight: 700;
       color: var(--text);
-    }
-    [data-theme="light"] .btn-toggle-menu {
-      background: rgba(255, 255, 255, 0.88);
     }
     .btn-toggle-menu:hover { border-color: var(--accent); }
 
     /* Side Drawer Menu */
     #sideMenu {
       position: absolute;
-      top: 52px;
+      top: 56px;
       right: 0;
       bottom: 0;
       width: 360px;
       max-width: 90vw;
-      background: var(--surface);
+      background: var(--bg);
       border-left: 1px solid var(--border);
       z-index: 900;
       display: flex;
       flex-direction: column;
       transform: translateX(100%);
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: -10px 0 30px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease;
     }
     #sideMenu.open { transform: translateX(0); }
 
     .menu-header {
-      padding: 16px 20px;
+      padding: 14px 18px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    .menu-header h3 { font-size: 15px; font-weight: 600; }
+    .menu-header h3 { font-size: 15px; font-weight: 700; }
     .menu-content {
-      padding: 20px;
+      padding: 18px;
       overflow-y: auto;
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 18px;
     }
 
     .menu-section {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
     .section-title {
       font-size: 11px;
       text-transform: uppercase;
-      font-weight: 700;
-      letter-spacing: 0.06em;
+      font-weight: 800;
+      letter-spacing: 0.05em;
       color: var(--accent);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    /* Layers checkboxes */
+    /* Layer cards */
     .layer-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      gap: 6px;
     }
     .layer-card {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 7px 10px;
-      background: var(--surface-2);
+      padding: 6px 8px;
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
       font-size: 12px;
-      transition: all 0.15s ease;
+      transition: background 0.1s ease;
     }
     .layer-card:hover { background: var(--surface-hover); }
     .layer-card input { cursor: pointer; accent-color: var(--accent); }
     .layer-swatch {
-      width: 10px;
-      height: 10px;
-      border-radius: 2px;
+      width: 9px;
+      height: 9px;
+      border-radius: 1px;
       flex-shrink: 0;
     }
 
@@ -323,13 +360,13 @@
     .slider-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     input[type=range] {
       flex: 1;
-      height: 5px;
+      height: 4px;
       background: var(--surface-2);
-      border-radius: 4px;
+      border-radius: 2px;
       accent-color: var(--accent);
       outline: none;
     }
@@ -337,45 +374,39 @@
       font-family: var(--font-mono);
       font-size: 12px;
       color: var(--text-muted);
-      min-width: 38px;
+      min-width: 36px;
       text-align: right;
     }
 
     /* Menu Footer with Logout button */
     .menu-footer {
-      padding: 16px 20px;
+      padding: 14px 18px;
       border-top: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      background: var(--surface-2);
+      background: var(--surface);
     }
     .btn-logout {
       width: 100%;
-      background: #dc2626;
-      border: 1px solid #ef4444;
+      background: var(--accent);
+      border: 1px solid var(--accent);
       color: #fff;
-      font-weight: 600;
+      font-weight: 700;
       padding: 10px 16px;
-      border-radius: 8px;
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      box-shadow: 0 2px 10px rgba(220, 38, 38, 0.3);
       cursor: pointer;
-      transition: all 0.15s ease;
     }
     .btn-logout:hover {
-      background: #b91c1c;
-      border-color: #f87171;
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
     }
 
     /* Modal Overlays (Welcome & Connection) */
     .overlay-screen {
       position: fixed;
-      top: 52px;
+      top: 56px;
       left: 0;
       right: 0;
       bottom: 0;
@@ -385,7 +416,7 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      transition: opacity 0.35s ease, visibility 0.35s ease;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
     }
     .overlay-screen.hidden {
       opacity: 0;
@@ -393,58 +424,50 @@
       pointer-events: none;
     }
 
-    /* Welcome Card */
+    /* Welcome Card - Clean portfolio aesthetic */
     .welcome-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 36px 32px;
+      border-radius: 6px;
+      padding: 32px 28px;
       width: 100%;
-      max-width: 480px;
-      box-shadow: var(--shadow);
+      max-width: 440px;
       text-align: center;
-      position: relative;
     }
     .welcome-card h2 {
       font-size: 22px;
-      margin-bottom: 8px;
-      font-weight: 700;
-    }
-    .welcome-card p {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.5;
-      margin-bottom: 24px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      color: #ffffff;
+      letter-spacing: -0.02em;
     }
     .input-group {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       text-align: left;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
     .input-group label {
       font-size: 12px;
       color: var(--text-muted);
-      font-weight: 500;
-    }
-    .key-input-wrap {
-      position: relative;
+      font-weight: 600;
     }
     .key-input-wrap input {
       width: 100%;
-      padding: 12px 14px;
+      padding: 11px 12px;
       font-size: 14px;
       font-family: var(--font-mono);
+      background: #000000;
+      border: 1px solid var(--border);
     }
     .key-input-wrap input.invalid {
       border-color: var(--danger);
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
     }
     .error-label {
       font-size: 12px;
       color: var(--danger);
-      font-weight: 500;
+      font-weight: 600;
       display: none;
       margin-top: 4px;
     }
@@ -454,9 +477,9 @@
       font-size: 12px;
       color: var(--accent);
       text-decoration: none;
-      transition: color 0.15s ease;
       display: inline-block;
-      margin-top: 4px;
+      margin-top: 6px;
+      font-weight: 500;
     }
     .guide-link:hover { text-decoration: underline; color: var(--accent-hover); }
 
@@ -464,23 +487,24 @@
       width: 100%;
       padding: 12px;
       font-size: 14px;
+      border-radius: 4px;
     }
 
     /* Connection Status Screen matching reference */
     .connect-screen-box {
       width: 100%;
-      max-width: 640px;
+      max-width: 600px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 20px;
+      gap: 18px;
     }
 
-    /* Radar / Connecting Icon Animation */
+    /* Flat Radar Indicator */
     .radar-indicator {
-      width: 100px;
-      height: 100px;
+      width: 90px;
+      height: 90px;
       position: relative;
       display: flex;
       align-items: center;
@@ -488,44 +512,42 @@
     }
     .radar-circle {
       position: absolute;
-      border: 2px solid var(--accent);
+      border: 1.5px solid var(--accent);
       border-radius: 50%;
-      opacity: 0.8;
-      animation: radarPulse 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+      opacity: 0.9;
+      animation: radarPulse 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
     }
-    .radar-circle:nth-child(1) { width: 40px; height: 40px; animation-delay: 0s; }
-    .radar-circle:nth-child(2) { width: 75px; height: 75px; animation-delay: 0.6s; }
-    .radar-circle:nth-child(3) { width: 100px; height: 100px; animation-delay: 1.2s; }
+    .radar-circle:nth-child(1) { width: 32px; height: 32px; animation-delay: 0s; }
+    .radar-circle:nth-child(2) { width: 62px; height: 62px; animation-delay: 0.5s; }
+    .radar-circle:nth-child(3) { width: 90px; height: 90px; animation-delay: 1.0s; }
     .radar-core {
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       background: var(--accent);
       border-radius: 50%;
-      box-shadow: 0 0 16px var(--accent);
       z-index: 2;
     }
     @keyframes radarPulse {
-      0% { transform: scale(0.4); opacity: 1; }
-      100% { transform: scale(1.3); opacity: 0; }
+      0% { transform: scale(0.3); opacity: 1; }
+      100% { transform: scale(1.2); opacity: 0; }
     }
 
     .conn-status-title {
       font-size: 26px;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: -0.02em;
-      transition: color 0.2s ease;
     }
     .conn-status-comment {
       font-size: 14px;
       color: var(--text-muted);
-      line-height: 1.6;
+      line-height: 1.5;
       white-space: pre-line;
-      max-width: 460px;
+      max-width: 440px;
     }
     .conn-countdown {
       font-size: 13px;
       color: var(--warning);
-      font-weight: 600;
+      font-weight: 700;
       font-family: var(--font-mono);
       display: none;
     }
@@ -535,20 +557,19 @@
       width: 100%;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 4px;
       overflow: hidden;
       text-align: left;
-      box-shadow: var(--shadow);
     }
     .logs-panel-header {
-      padding: 10px 14px;
+      padding: 8px 12px;
       background: var(--surface-2);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text);
     }
     .logs-actions {
@@ -557,40 +578,35 @@
       gap: 6px;
     }
     .logs-console {
-      height: 180px;
+      height: 170px;
       overflow-y: auto;
-      padding: 12px;
+      padding: 10px 12px;
       font-family: var(--font-mono);
       font-size: 11px;
-      line-height: 1.5;
-      color: #94a3b8;
-      background: #08090d;
+      line-height: 1.45;
+      color: #9999aa;
+      background: #000000;
       white-space: pre-wrap;
       overflow-wrap: anywhere;
     }
-    [data-theme="light"] .logs-console {
-      background: #1e293b;
-      color: #cbd5e1;
-    }
 
-    /* Toast notification */
+    /* Toast */
     #toast {
       position: fixed;
-      bottom: 24px;
+      bottom: 20px;
       left: 50%;
-      transform: translateX(-50%) translateY(40px);
+      transform: translateX(-50%) translateY(30px);
       background: var(--surface);
       color: var(--text);
       border: 1px solid var(--border);
-      padding: 8px 16px;
-      border-radius: 8px;
+      padding: 8px 14px;
+      border-radius: 4px;
       font-size: 12px;
-      font-weight: 500;
-      box-shadow: var(--shadow);
+      font-weight: 600;
       z-index: 2000;
       opacity: 0;
       pointer-events: none;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.15s ease;
     }
     #toast.show {
       transform: translateX(-50%) translateY(0);
@@ -603,74 +619,105 @@
       z-index: 800;
       pointer-events: none;
       display: none;
-      transform: translate(14px, 14px);
-      background: rgba(18, 19, 26, 0.94);
-      backdrop-filter: blur(8px);
+      transform: translate(12px, 12px);
+      background: rgba(0, 0, 0, 0.95);
       border: 1px solid var(--border);
-      color: var(--text);
-      padding: 5px 10px;
-      border-radius: 6px;
+      color: #ffffff;
+      padding: 5px 9px;
+      border-radius: 4px;
       font-size: 12px;
-      font-weight: 600;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      font-weight: 700;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
       white-space: nowrap;
     }
-    [data-theme="light"] #hoverTooltip {
-      background: rgba(255, 255, 255, 0.94);
-      color: #0f172a;
-    }
     .hover-badge-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 2px;
+      width: 9px;
+      height: 9px;
+      border-radius: 1px;
     }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-      .telemetry-bar .telem-item.hide-mobile { display: none; }
-      .brand-desc { display: none; }
+    @media (max-width: 900px) {
+      #topHeader { flex-direction: column; align-items: flex-start; gap: 8px; min-height: auto; }
+      #mainApp { top: 96px; }
+      #sideMenu { top: 96px; }
+      .telemetry-bar { justify-content: flex-start; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Telemetry Header -->
+  <!-- Top Header with exact custom text and flat telemetry -->
   <header id="topHeader">
     <div class="brand-section">
-      <div class="brand-logo">
-        <span class="brand-dot"></span>
-        <span>TesseraMap</span>
+      <div class="brand-title">
+        <span class="red-ch">T</span>essera<span class="red-ch">M</span>ap
       </div>
-      <div class="brand-desc">Спутниковая сегментация</div>
+      <div class="brand-subtext">
+        <div>Чтож, этот сайт хостится в Германии, так что сорян, если пинг будет большой.</div>
+        <div>Вся обработка проводится на моём пк, так что если сервак не доступен - напишите мне.</div>
+        <div>Я так и быть (возможно) его включу.</div>
+      </div>
     </div>
 
     <!-- Telemetry Stats -->
     <div class="telemetry-bar" id="telemetryBar">
       <div class="telem-item">
         <span class="telem-label">GPU:</span>
-        <span class="telem-value" id="telemGpuName">RTX 4060 Ti</span>
+        <span class="telem-value" id="telemGpuName">--</span>
+      </div>
+
+      <!-- GPU load with sparkline and expandable graph on hover -->
+      <div class="telem-item sparkline-box" id="gpuLoadBox" title="Наведите для просмотра детального графика">
+        <span class="telem-label">Нагрузка:</span>
+        <span class="telem-value" id="telemGpuLoad">--%</span>
+        <svg class="sparkline-svg" id="gpuSparkline" viewBox="0 0 52 18">
+          <path id="sparklinePath" d="M 0 16 L 52 16" />
+        </svg>
+
+        <!-- Expanded GPU graph popup on hover -->
+        <div class="gpu-expanded-chart" id="gpuExpandedChart">
+          <div class="chart-header">
+            <span>ИСТОРИЯ НАГРУЗКИ GPU</span>
+            <span id="expandedGpuVal">--%</span>
+          </div>
+          <svg viewBox="0 0 200 70" preserveAspectRatio="none">
+            <line x1="0" y1="18" x2="200" y2="18" stroke="#1c1c24" stroke-width="1" stroke-dasharray="2,2"/>
+            <line x1="0" y1="35" x2="200" y2="35" stroke="#1c1c24" stroke-width="1" stroke-dasharray="2,2"/>
+            <line x1="0" y1="52" x2="200" y2="52" stroke="#1c1c24" stroke-width="1" stroke-dasharray="2,2"/>
+            <path id="expandedChartPath" d="M 0 68 L 200 68" fill="none" stroke="#e53935" stroke-width="2"/>
+          </svg>
+          <div style="font-size: 10px; color: var(--text-subtle); display:flex; justify-content:space-between;">
+            <span>VRAM: <b id="expandedGpuMem" style="color:var(--text)">--</b></span>
+            <span>60 сек</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="telem-item">
+        <span class="telem-label">На сайте:</span>
+        <span class="telem-value" id="telemUsers">--</span>
       </div>
       <div class="telem-item">
-        <span class="telem-label">Нагрузка:</span>
-        <span class="telem-value" id="telemGpuLoad">14% · 3.2 GB</span>
-      </div>
-      <div class="telem-item hide-mobile">
-        <span class="telem-label">На сайте:</span>
-        <span class="telem-value" id="telemUsers">1</span>
-      </div>
-      <div class="telem-item hide-mobile">
         <span class="telem-label">Часы работы:</span>
-        <span class="telem-value" id="telemUptime">00:00:00</span>
+        <span class="telem-value" id="telemUptime">--:--:--</span>
       </div>
+
+      <!-- Network Transfer Packet Traffic -->
+      <div class="telem-item">
+        <span style="color:var(--accent); font-weight:700;">↑</span>
+        <span class="telem-value" id="bytesUp">0 B</span>
+        <span style="color:var(--success); font-weight:700; margin-left:4px;">↓</span>
+        <span class="telem-value" id="bytesDown">0 B</span>
+      </div>
+
       <div class="telem-item">
         <span class="telem-label">Пинг:</span>
         <span class="telem-value" id="telemPing">-- мс</span>
       </div>
-      <div class="telem-item hide-mobile">
-        <span class="telem-label">IP:</span>
-        <span class="telem-value" id="telemIp">127.0.0.1</span>
+      <div class="telem-item">
+        <span class="telem-label">IP_client:</span>
+        <span class="telem-value" id="telemIp">--</span>
       </div>
     </div>
   </header>
@@ -681,13 +728,13 @@
 
     <!-- Floating bar on top of the map -->
     <div class="map-floating-bar">
-      <button id="btnScan" class="btn-red" style="padding: 7px 14px; font-size: 13px;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <button id="btnScan" class="btn-red" style="padding: 6px 14px; font-size: 13px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         <span>Сканировать</span>
       </button>
 
-      <button id="btnAutoScan" style="padding: 7px 12px; font-size: 13px;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      <button id="btnAutoScan" style="padding: 6px 12px; font-size: 13px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
         <span id="autoScanText">Реал-тайм: выкл</span>
       </button>
 
@@ -698,7 +745,7 @@
 
     <!-- Button to toggle side drawer -->
     <button id="btnOpenMenu" class="btn-toggle-menu">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       <span>Параметры</span>
     </button>
   </main>
@@ -708,7 +755,7 @@
     <div class="menu-header">
       <h3>Параметры системы</h3>
       <button id="btnCloseMenu" class="btn-icon" title="Закрыть">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
 
@@ -716,7 +763,7 @@
       <!-- Theme Switcher -->
       <div class="menu-section">
         <div class="section-title">Тема интерфейса</div>
-        <button id="btnToggleTheme" style="padding: 9px; justify-content: flex-start;">
+        <button id="btnToggleTheme" style="padding: 8px; justify-content: flex-start;">
           <span id="themeIcon">🌙</span>
           <span id="themeLabel">Тёмная тема</span>
         </button>
@@ -732,9 +779,7 @@
             <a href="#" id="btnDeselectAllLayers" style="font-size:10px; color:var(--text-muted); text-decoration:none;">Снять</a>
           </div>
         </div>
-        <div class="layer-grid" id="layerGrid">
-          <!-- Dynamically populated classes -->
-        </div>
+        <div class="layer-grid" id="layerGrid"></div>
       </div>
 
       <!-- Opacity Slider -->
@@ -752,22 +797,22 @@
       <div class="menu-section">
         <div class="section-title">Сканер ML</div>
 
-        <label style="font-size:12px; color:var(--text-muted);">Модель:</label>
+        <label style="font-size:11px; color:var(--text-muted);">Модель:</label>
         <select id="modelModeSelect">
           <option value="ensemble" selected>Ансамбль YOLO + SegFormer</option>
           <option value="yolo">Только YOLO26x</option>
           <option value="segformer">Только SegFormer-B5</option>
         </select>
 
-        <label style="font-size:12px; color:var(--text-muted); margin-top:6px;">Режим обработки:</label>
+        <label style="font-size:11px; color:var(--text-muted); margin-top:4px;">Режим обработки:</label>
         <select id="modeSelect">
           <option value="Тайлы" selected>Тайлы (высокая точность)</option>
           <option value="Один проход">Один проход (быстро)</option>
         </select>
 
-        <div style="display: flex; gap: 8px; margin-top: 6px;">
+        <div style="display: flex; gap: 8px; margin-top: 4px;">
           <div style="flex:1;">
-            <label style="font-size:11px; color:var(--text-subtle);">Размер тайла:</label>
+            <label style="font-size:10px; color:var(--text-subtle);">Размер тайла:</label>
             <select id="tileSizeSelect">
               <option value="384">384</option>
               <option value="512" selected>512</option>
@@ -776,7 +821,7 @@
             </select>
           </div>
           <div style="flex:1;">
-            <label style="font-size:11px; color:var(--text-subtle);">Перекрытие:</label>
+            <label style="font-size:10px; color:var(--text-subtle);">Перекрытие:</label>
             <select id="overlapSelect">
               <option value="0">0</option>
               <option value="64">64</option>
@@ -787,8 +832,8 @@
           </div>
         </div>
 
-        <div style="margin-top: 6px;">
-          <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); margin-bottom:4px;">
+        <div style="margin-top: 4px;">
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:2px;">
             <span>Вес SegFormer:</span>
             <span id="weightValue">60%</span>
           </div>
@@ -799,8 +844,8 @@
       <!-- Actions -->
       <div class="menu-section">
         <div class="section-title">Действия</div>
-        <button id="btnClearMasks" style="padding: 10px; font-weight: 500;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        <button id="btnClearMasks" style="padding: 8px; font-weight: 600;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           <span>Очистить маски на карте</span>
         </button>
         <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); cursor: pointer; margin-top: 4px;">
@@ -819,14 +864,10 @@
     </div>
   </aside>
 
-  <!-- Welcome Screen (Step 1) -->
+  <!-- Welcome Screen (Step 1 - Minimalist portfolio aesthetic) -->
   <div id="welcomeScreen" class="overlay-screen">
     <div class="welcome-card">
-      <div style="display:inline-flex; align-items:center; justify-content:center; width:48px; height:48px; background:var(--accent-subtle); border-radius:12px; margin-bottom:16px; border:1px solid var(--accent);">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-      </div>
-      <h2>TesseraMap</h2>
-      <p>Спутниковый анализ и сегментация местности. Введите свой API ключ MapTiler для подключения карты высокого разрешения.</p>
+      <h2>Подключиться</h2>
 
       <div class="input-group">
         <label for="apiKeyInput">API ключ MapTiler:</label>
@@ -846,7 +887,7 @@
   <!-- Connection Status Screen (Step 2 - Matches reference) -->
   <div id="connectScreen" class="overlay-screen hidden">
     <div class="connect-screen-box">
-      <!-- Center Radar/Animation -->
+      <!-- Center Radar -->
       <div class="radar-indicator">
         <div class="radar-circle"></div>
         <div class="radar-circle"></div>
@@ -917,18 +958,66 @@
     let currentApiKey = localStorage.getItem('tesseramap_maptiler_key') || '';
     let satelliteLayer = null;
     let isConnected = false;
+    let telemetryTimer = null;
     let workerBusy = false;
     let activeGeneration = 0;
     let runningCounter = 0;
-    let viewCounter = 0;
     let autoTimer = null;
     let activeClassFilters = new Set([0, 1, 2, 3, 4, 5, 6, 7]);
-    const maskCache = new Map(); // key -> { overlay, canvas, ctx, imgData, z, px, py, width, height, signature, lastUsed }
+    const maskCache = new Map();
     let queue = [];
-    const MAX_CACHE = 180;
+
+    // Network traffic tracking
+    let totalBytesSent = 0;
+    let totalBytesRecv = 0;
+
+    function formatBytes(bytes) {
+      if (!bytes || bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return (bytes / Math.pow(k, i)).toFixed(i > 0 ? 1 : 0) + ' ' + sizes[i];
+    }
+
+    function recordTraffic(sent, recv) {
+      if (sent) totalBytesSent += sent;
+      if (recv) totalBytesRecv += recv;
+      $('bytesUp').textContent = formatBytes(totalBytesSent);
+      $('bytesDown').textContent = formatBytes(totalBytesRecv);
+    }
+
+    // Sparkline history data points (last 24 values)
+    const gpuHistory = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    function updateGpuCharts(val, memStr) {
+      gpuHistory.shift();
+      gpuHistory.push(val);
+
+      // Mini sparkline (52x18)
+      const maxH = 16;
+      const stepX = 52 / (gpuHistory.length - 1);
+      const points = gpuHistory.map((v, i) => {
+        const x = (i * stepX).toFixed(1);
+        const y = (17 - (Math.min(100, Math.max(0, v)) / 100) * maxH).toFixed(1);
+        return `${x} ${y}`;
+      });
+      $('sparklinePath').setAttribute('d', 'M ' + points.join(' L '));
+
+      // Expanded chart (200x70)
+      const expStepX = 200 / (gpuHistory.length - 1);
+      const expMaxH = 60;
+      const expPoints = gpuHistory.map((v, i) => {
+        const x = (i * expStepX).toFixed(1);
+        const y = (66 - (Math.min(100, Math.max(0, v)) / 100) * expMaxH).toFixed(1);
+        return `${x} ${y}`;
+      });
+      $('expandedChartPath').setAttribute('d', 'M ' + expPoints.join(' L '));
+      $('expandedGpuVal').textContent = `${val}%`;
+      if (memStr) $('expandedGpuMem').textContent = memStr;
+    }
 
     // Toast helper
-    function showToast(text, ms = 2200) {
+    function showToast(text, ms = 2000) {
       const t = $('toast');
       t.textContent = text;
       t.classList.add('show');
@@ -946,11 +1035,15 @@
         consoleEl.textContent = clientLogs.join('\n');
         consoleEl.scrollTop = consoleEl.scrollHeight;
       }
-      fetch('/api/client-log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, level })
-      }).catch(() => {});
+      if (isConnected) {
+        const payload = JSON.stringify({ text, level });
+        recordTraffic(payload.length, 0);
+        fetch('/api/client-log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload
+        }).catch(() => {});
+      }
     }
 
     // Leaflet map setup - Initial center: Rostov-on-Don (47.2357, 39.7015), zoom 16
@@ -971,7 +1064,7 @@
       attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    // Initialize UI Elements & Layer Grid
+    // Layer Grid initialization
     function initLayerGrid() {
       const grid = $('layerGrid');
       grid.innerHTML = '';
@@ -1037,7 +1130,7 @@
     $('btnCloseMenu').addEventListener('click', () => $('sideMenu').classList.remove('open'));
 
     // Status & Comment Controller for Connection Screen
-    function setConnectionStatus(type, extra = '') {
+    function setConnectionStatus(type) {
       const title = $('connStatusTitle');
       const comment = $('connStatusComment');
       const countdown = $('connCountdown');
@@ -1068,7 +1161,6 @@
       }
     }
 
-    // Countdown before returning to welcome screen
     function startRedirectCountdown(sec = 5) {
       let remain = sec;
       $('countdownSec').textContent = remain;
@@ -1084,6 +1176,10 @@
 
     function disconnectToWelcome(isExpired = false) {
       isConnected = false;
+      if (telemetryTimer) {
+        clearInterval(telemetryTimer);
+        telemetryTimer = null;
+      }
       if (satelliteLayer) {
         map.removeLayer(satelliteLayer);
         satelliteLayer = null;
@@ -1091,6 +1187,15 @@
       clearMasks();
       $('connectScreen').classList.add('hidden');
       $('welcomeScreen').classList.remove('hidden');
+
+      // Reset telemetry text
+      $('telemGpuName').textContent = '--';
+      $('telemGpuLoad').textContent = '--%';
+      $('telemUsers').textContent = '--';
+      $('telemUptime').textContent = '--:--:--';
+      $('telemPing').textContent = '-- мс';
+      $('telemIp').textContent = '--';
+
       if (isExpired) {
         const inp = $('apiKeyInput');
         inp.classList.add('invalid');
@@ -1124,29 +1229,24 @@
       addLog('Пользователь нажал Выход');
     });
 
-    // Check MapTiler API Key
+    // Check MapTiler API Key (client-side directly to MapTiler)
     async function testApiKey(key) {
       const testUrl = `https://api.maptiler.com/tiles/satellite-v2/0/0/0.jpg?key=${encodeURIComponent(key)}`;
       try {
+        recordTraffic(60, 0);
         const res = await fetch(testUrl, { method: 'GET', mode: 'cors' });
-        return res.ok;
-      } catch (e) {
-        // Fallback test via backend
-        try {
-          const sres = await fetch('/api/check-key', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key })
-          });
-          const data = await sres.json();
-          return !!data.valid;
-        } catch {
-          return false;
+        if (res.ok) {
+          const blob = await res.blob();
+          recordTraffic(0, blob.size);
+          return true;
         }
+        return false;
+      } catch (e) {
+        return false;
       }
     }
 
-    // Connect Flow
+    // Connect Button: Only now do we connect to server!
     $('btnConnect').addEventListener('click', async () => {
       const keyInput = $('apiKeyInput');
       const errorLabel = $('apiKeyError');
@@ -1191,15 +1291,17 @@
       startServerHandshake();
     });
 
-    // Server handshake and map initialization
+    // Server handshake and map initialization (initiated only after btnConnect)
     async function startServerHandshake() {
       addLog('Подключение к локальному серверу TesseraMap...');
       try {
+        recordTraffic(40, 0);
         const res = await fetch('/api/status?client_id=' + clientId);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
+        recordTraffic(0, JSON.stringify(data).length);
 
-        addLog(`Сервер ответил: GPU=${data.gpu_name}, Uptime=${data.uptime}`);
+        addLog(`Сервер подключён: GPU=${data.gpu_name}, Uptime=${data.uptime}`);
         updateTelemetry(data);
 
         // Attach Satellite Tile Layer
@@ -1209,13 +1311,18 @@
         setConnectionStatus('connected');
         addLog('Успешное подключение к спутниковому источнику и серверу!');
 
-        // Smooth fade-out of the connection overlay
+        // Start telemetry polling
+        if (!telemetryTimer) {
+          telemetryTimer = setInterval(pollTelemetry, 2500);
+        }
+
+        // Smooth transition to main app
         setTimeout(() => {
           $('connectScreen').classList.add('hidden');
           isConnected = true;
           showToast('TesseraMap готов к работе');
           updateMapStatusPill();
-        }, 900);
+        }, 800);
 
       } catch (err) {
         addLog(`Не удалось связаться с сервером: ${err.message}`, 'error');
@@ -1244,7 +1351,6 @@
 
       satelliteLayer.on('tileerror', (e) => {
         addLog(`Ошибка спутникового тайла: z=${e.coords?.z}, x=${e.coords?.x}`, 'error');
-        // If forbidden / unauthorized, API has expired
         if (e.error && (e.error.status === 401 || e.error.status === 403)) {
           triggerApiExpired();
         }
@@ -1261,17 +1367,22 @@
       setConnectionStatus('api_expired');
     }
 
-    // Telemetry Polling & Ping
+    // Telemetry Polling & Ping (runs only when isConnected)
     async function pollTelemetry() {
+      if (!isConnected) return;
       const t0 = performance.now();
       try {
+        recordTraffic(20, 0);
         const pingRes = await fetch('/api/ping');
         const pingMs = Math.round(performance.now() - t0);
+        recordTraffic(0, 30);
         $('telemPing').textContent = `${pingMs} мс`;
 
+        recordTraffic(30, 0);
         const statRes = await fetch('/api/system-stats?client_id=' + clientId);
         if (statRes.ok) {
           const s = await statRes.json();
+          recordTraffic(0, JSON.stringify(s).length);
           updateTelemetry(s);
         }
       } catch (e) {
@@ -1281,18 +1392,16 @@
 
     function updateTelemetry(s) {
       if (s.gpu_name) $('telemGpuName').textContent = s.gpu_name.replace('NVIDIA GeForce ', '');
-      if (s.gpu_load) $('telemGpuLoad').textContent = `${s.gpu_load} · ${s.gpu_mem}`;
+      if (s.gpu_load) $('telemGpuLoad').textContent = s.gpu_load;
+      if (s.gpu_load_val !== undefined) updateGpuCharts(s.gpu_load_val, s.gpu_mem);
       if (s.active_users) $('telemUsers').textContent = s.active_users;
       if (s.uptime) $('telemUptime').textContent = s.uptime;
       if (s.client_ip) $('telemIp').textContent = s.client_ip;
     }
 
-    setInterval(pollTelemetry, 2500);
-
     // Map UI Updates
     function updateMapStatusPill() {
       const z = map.getZoom();
-      const center = map.getCenter();
       $('mapStatusPill').textContent = `Ростов-на-Дону · Zoom ${z} · Масок: ${maskCache.size}`;
     }
 
@@ -1499,10 +1608,13 @@
           };
 
           try {
+            const bodyStr = JSON.stringify(reqPayload);
+            recordTraffic(bodyStr.length, 0);
+
             const res = await fetch('/api/segment', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(reqPayload)
+              body: bodyStr
             });
 
             if (!res.ok) {
@@ -1511,9 +1623,10 @@
             }
 
             const blob = await res.blob();
+            recordTraffic(0, blob.size);
+
             if (c.signature !== getSignature()) continue;
 
-            // Load blob into Image to obtain pixel data for hover inspection & filtering
             await storeMaskChunk(c, blob);
             updateMapStatusPill();
             addLog(`Сектор #${rid} обработан (${res.headers.get('X-Inference-MS')} мс ML)`);
@@ -1528,7 +1641,6 @@
       }
     }
 
-    // Store mask chunk and setup offscreen canvas for instantaneous hover inspection
     function storeMaskChunk(c, blob) {
       return new Promise((resolve) => {
         const url = URL.createObjectURL(blob);
@@ -1541,7 +1653,6 @@
           ctx.drawImage(img, 0, 0);
           const imgData = ctx.getImageData(0, 0, c.width, c.height);
 
-          // Visible overlay canvas
           const displayCanvas = document.createElement('canvas');
           displayCanvas.width = c.width;
           displayCanvas.height = c.height;
@@ -1558,7 +1669,7 @@
             rawImg: img,
             displayCanvas,
             offCanvas,
-            rawPixels: imgData.data, // Uint8ClampedArray for instant hover lookup
+            rawPixels: imgData.data,
             z: c.z,
             px: c.px,
             py: c.py,
@@ -1576,7 +1687,6 @@
       });
     }
 
-    // Client-side filtering of layers
     function renderFilteredChunk(entry) {
       const { displayCanvas, rawPixels, width, height, overlay } = entry;
       const ctx = displayCanvas.getContext('2d');
@@ -1593,7 +1703,6 @@
         const g = rawPixels[i + 1];
         const b = rawPixels[i + 2];
 
-        // Find matched class
         let minD = 999999;
         let matchedClass = 0;
         for (let k = 0; k < CLASSES.length; k++) {
@@ -1683,7 +1792,7 @@
 
     map.on('mouseout', () => { tooltip.style.display = 'none'; });
 
-    // Initial check on page load
+    // Initial page load setup: NO server fetch until btnConnect!
     window.addEventListener('DOMContentLoaded', () => {
       initLayerGrid();
       if (currentApiKey) {

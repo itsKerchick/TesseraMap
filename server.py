@@ -121,6 +121,7 @@ def get_system_telemetry(client_id: str | None = None, req_client_ip: str = "127
 
     gpu_name = "N/A"
     gpu_load_str = "0%"
+    gpu_load_val = 0
     gpu_mem_str = "0 / 0 MB"
 
     if HAS_NVML:
@@ -129,7 +130,8 @@ def get_system_telemetry(client_id: str | None = None, req_client_ip: str = "127
             raw_name = pynvml.nvmlDeviceGetName(handle)
             gpu_name = raw_name.decode("utf-8") if isinstance(raw_name, bytes) else str(raw_name)
             util = pynvml.nvmlDeviceGetUtilizationRates(handle)
-            gpu_load_str = f"{util.gpu}%"
+            gpu_load_val = int(util.gpu)
+            gpu_load_str = f"{gpu_load_val}%"
             mem = pynvml.nvmlDeviceGetMemoryInfo(handle)
             used_mb = int(mem.used / (1024 * 1024))
             total_mb = int(mem.total / (1024 * 1024))
@@ -160,6 +162,7 @@ def get_system_telemetry(client_id: str | None = None, req_client_ip: str = "127
     return {
         "gpu_name": gpu_name,
         "gpu_load": gpu_load_str,
+        "gpu_load_val": gpu_load_val,
         "gpu_mem": gpu_mem_str,
         "cpu_load": cpu_load_str,
         "ram_usage": ram_str,
