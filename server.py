@@ -25,6 +25,7 @@ from PIL import Image
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 # Ensure SegFormer-Benchmark directory is in sys.path
@@ -34,6 +35,10 @@ if str(BENCHMARK_DIR) not in sys.path:
     sys.path.insert(0, str(BENCHMARK_DIR))
 
 HTML_FILE = ROOT / "index.html"
+GUIDE_FILE = ROOT / "guide.html"
+MAPTILER_DOCX_HTML = ROOT / "maptiler_guide.html"
+DOCX_FILE = ROOT / "maptiler_guide.docx"
+GUIDE_ASSETS = ROOT / "guide_assets"
 PDF_FILE = ROOT / "maptiler_guide.pdf"
 FAVICON_ICO = ROOT / "favicon.ico"
 FAVICON_PNG = ROOT / "favicon.png"
@@ -337,11 +342,57 @@ async def index():
     return HTML_FILE.read_text(encoding="utf-8")
 
 
+@app.get("/guide", response_class=HTMLResponse)
+@app.get("/maptiler_guide", response_class=HTMLResponse)
+@app.get("/maptiler_guide.html", response_class=HTMLResponse)
+async def guide_page():
+    if MAPTILER_DOCX_HTML.exists():
+        return MAPTILER_DOCX_HTML.read_text(encoding="utf-8")
+    if GUIDE_FILE.exists():
+        return GUIDE_FILE.read_text(encoding="utf-8")
+    raise HTTPException(404, "Документ не найден на сервере")
+
+
+@app.get("/maptiler_guide.docx")
+async def maptiler_guide_docx(request: Request):
+    # Explicit download parameter
+    if request.query_params.get("download") == "1":
+        if DOCX_FILE.exists():
+            return FileResponse(
+                DOCX_FILE,
+                media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                filename="maptiler_guide.docx"
+            )
+    # Raw file for the JS viewer
+    if request.query_params.get("raw") == "1":
+        if DOCX_FILE.exists():
+            return FileResponse(
+                DOCX_FILE,
+                media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
+    # Default: Open docx directly in browser reading mode without downloading
+    if MAPTILER_DOCX_HTML.exists():
+        return HTMLResponse(MAPTILER_DOCX_HTML.read_text(encoding="utf-8"))
+    if GUIDE_FILE.exists():
+        return HTMLResponse(GUIDE_FILE.read_text(encoding="utf-8"))
+    raise HTTPException(404, "maptiler_guide.docx не найден")
+
+
 @app.get("/maptiler_guide.pdf")
-async def maptiler_guide():
-    if not PDF_FILE.exists():
-        raise HTTPException(404, "Инструкция maptiler_guide.pdf не найдена в корне проекта")
-    return FileResponse(PDF_FILE, media_type="application/pdf", filename="maptiler_guide.pdf")
+async def maptiler_guide_pdf():
+    if PDF_FILE.exists():
+        return FileResponse(
+            PDF_FILE,
+            media_type="application/pdf",
+            headers={"Content-Disposition": "inline; filename=maptiler_guide.pdf"}
+        )
+    if MAPTILER_DOCX_HTML.exists():
+        return HTMLResponse(MAPTILER_DOCX_HTML.read_text(encoding="utf-8"))
+    raise HTTPException(404, "maptiler_guide не найден на сервере")
+
+
+if GUIDE_ASSETS.exists():
+    app.mount("/guide_assets", StaticFiles(directory=str(GUIDE_ASSETS)), name="guide_assets")
 
 
 @app.get("/favicon.ico")
