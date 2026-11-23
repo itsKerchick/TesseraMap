@@ -54,6 +54,13 @@ MAX_TILE_COUNT = 35
 MAX_ZOOM = 21
 MIN_SCAN_ZOOM = 16
 
+# Persistent HTTP client for MapTiler satellite tile proxying
+MAPTILER_CLIENT = httpx.AsyncClient(
+    timeout=12.0,
+    limits=httpx.Limits(max_keepalive_connections=100, max_connections=300),
+    headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) TesseraMap/2.0"},
+)
+
 MODEL_LOCK = threading.Lock()
 MODELS = None
 EXECUTOR = ThreadPoolExecutor(max_workers=1)
@@ -454,13 +461,41 @@ async def check_key(payload: CheckKeyRequest):
         return {"valid": False, "error": "Ключ пуст"}
     test_url = f"https://api.maptiler.com/tiles/satellite-v2/0/0/0.jpg?key={key}"
     try:
-        async with httpx.AsyncClient(timeout=6.0) as client:
-            resp = await client.get(test_url)
-            if resp.status_code == 200 and len(resp.content) > 500:
-                return {"valid": True}
-            return {"valid": False, "status_code": resp.status_code, "error": "Неверный ключ"}
+        resp = await MAPTILER_CLIENT.get(test_url)
+        if resp.status_code == 200 and len(resp.content) > 500:
+            return {"valid": True}
+        return {"valid": False, "status_code": resp.status_code, "error": "Неверный ключ"}
     except Exception as exc:
         return {"valid": False, "error": str(exc)}
+
+
+@app.get("/tiles/{z}/{x}/{y}.jpg")
+@app.get("/api/tiles/{z}/{x}/{y}.jpg")
+async def proxy_satellite_tile(z: int, x: int, y: int, key: str = ""):
+    token = key.strip()
+    if not token or len(token) < 5:
+        raise HTTPException(400, "Не указан API ключ MapTiler")
+
+    target_url = f"https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key={token}"
+    try:
+        resp = await MAPTILER_CLIENT.get(target_url)
+        if resp.status_code != 200:
+            return Response(
+                status_code=resp.status_code,
+                content=resp.content,
+                media_type=resp.headers.get("content-type", "text/plain"),
+                headers={"Access-Control-Allow-Origin": "*"},
+            )
+        return Response(
+            content=resp.content,
+            media_type="image/jpeg",
+            headers={
+                "Cache-Control": "public, max-age=604800, immutable",
+                "Access-Control-Allow-Origin": "*",
+            },
+        )
+    except Exception as exc:
+        raise HTTPException(502, f"Tile proxy error: {exc}")
 
 
 @app.get("/api/logs")
