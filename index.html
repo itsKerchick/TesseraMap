@@ -2006,6 +2006,23 @@
       return L.latLngBounds(map.unproject([c.px, c.py + c.height], c.z), map.unproject([c.px + c.width, c.py], c.z));
     }
 
+    // Calculates geographic overlap ratio between two bounding boxes (0.0 to 1.0)
+    function getOverlapRatio(b1, b2) {
+      const south = Math.max(b1.getSouth(), b2.getSouth());
+      const north = Math.min(b1.getNorth(), b2.getNorth());
+      const west = Math.max(b1.getWest(), b2.getWest());
+      const east = Math.min(b1.getEast(), b2.getEast());
+
+      if (north <= south || east <= west) return 0;
+
+      const overlapArea = (north - south) * (east - west);
+      const area1 = (b1.getNorth() - b1.getSouth()) * (b1.getEast() - b1.getWest());
+      const area2 = (b2.getNorth() - b2.getSouth()) * (b2.getEast() - b2.getWest());
+      const minArea = Math.min(area1, area2);
+      if (minArea <= 0) return 0;
+      return overlapArea / minArea;
+    }
+
     function chunksInView() {
       const b = zoomPixels();
       const step = 256;
@@ -2156,6 +2173,28 @@
         const url = URL.createObjectURL(blob);
         const img = new Image();
         img.onload = () => {
+          const newBounds = overlayBounds(c);
+
+          // Clean up any older masks that geographically overlap with this new scan
+          const toDelete = [];
+          for (const [k, oldEntry] of maskCache.entries()) {
+            if (k === c.key) continue;
+            const oldBounds = oldEntry.bounds || overlayBounds(oldEntry);
+            const ratio = getOverlapRatio(newBounds, oldBounds);
+            if (ratio > 0.05) {
+              toDelete.push(k);
+            }
+          }
+
+          for (const k of toDelete) {
+            const oldEntry = maskCache.get(k);
+            if (oldEntry) {
+              if (oldEntry.overlay) map.removeLayer(oldEntry.overlay);
+              if (oldEntry.url) URL.revokeObjectURL(oldEntry.url);
+              maskCache.delete(k);
+            }
+          }
+
           const offCanvas = document.createElement('canvas');
           offCanvas.width = c.width;
           offCanvas.height = c.height;
@@ -2167,7 +2206,7 @@
           displayCanvas.width = c.width;
           displayCanvas.height = c.height;
 
-          const ov = L.imageOverlay(displayCanvas.toDataURL(), overlayBounds(c), {
+          const ov = L.imageOverlay(displayCanvas.toDataURL(), newBounds, {
             pane: 'maskPane',
             opacity: getOpacity(),
             interactive: false
@@ -2175,6 +2214,7 @@
 
           const entry = {
             overlay: ov,
+            bounds: newBounds,
             url,
             rawImg: img,
             displayCanvas,
@@ -2191,6 +2231,7 @@
 
           maskCache.set(c.key, entry);
           renderFilteredChunk(entry);
+          updateMapStatusPill();
           resolve();
         };
         img.src = url;
