@@ -4,7 +4,10 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
 
-Интерактивная геоинформационная веб-система для семантической сегментации спутниковых снимков сверхвысокого разрешения на базе ансамбля нейросетей **YOLO26x** и **SegFormer-B5**.
+Интерактивная геоинформационная веб-система для семантической сегментации спутниковых снимков сверхвысокого разрешения на базе ансамбля(объединения) нейросетей **YOLO26x** и **SegFormer-B5**.
+<img width="1920" height="940" alt="{02876A56-8142-4C40-BF49-CCA28660AE5C}" src="https://github.com/user-attachments/assets/628e046f-658d-4873-9937-5d2a690aa0bb" />
+<img width="1920" height="946" alt="test42" src="https://github.com/user-attachments/assets/902ab3a8-bdbd-4396-b610-50b03444f42d" />
+<img width="1920" height="942" alt="test533" src="https://github.com/user-attachments/assets/f67479e2-4360-4f39-8cc9-468858cc554c" />
 
 > 📌 **О проекте:**  
 > Проект вдохновлён задачей **«Космический детектив» — учим компьютер находить объекты на спутниковых снимках** с образовательной платформы [Сириус.Лето](https://leto.sirius.online).  
