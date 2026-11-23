@@ -22,10 +22,10 @@ import numpy as np
 from PIL import Image
 import websockets
 
-# Ensure SegFormer-Benchmark directory is in sys.path
+# Model inference engine
 ROOT = Path(__file__).resolve().parent
-BENCHMARK_DIR = Path(r"L:\Local project 2\SegFormer-Benchmark").resolve()
-if str(BENCHMARK_DIR) not in sys.path:
+BENCHMARK_DIR = (ROOT.parent / "SegFormer-Benchmark").resolve()
+if BENCHMARK_DIR.exists() and str(BENCHMARK_DIR) not in sys.path:
     sys.path.insert(0, str(BENCHMARK_DIR))
 
 LOG = logging.getLogger("tesseramap.worker")
@@ -55,7 +55,11 @@ def get_models():
     global MODELS
     if MODELS is None:
         LOG.info("Загрузка нейросетевых моделей SegFormer и YOLO...")
-        import viewer_ensemble_compare_slider_fixed_v2 as viewer
+        try:
+            import ml_inference as viewer
+            viewer.load_models()
+        except Exception:
+            import viewer_ensemble_compare_slider_fixed_v2 as viewer
         MODELS = viewer
         LOG.info("Модели успешно загружены на устройство: %s", viewer.DEVICE)
     return MODELS

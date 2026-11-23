@@ -1,9 +1,22 @@
+# Python & Virtual Environments
 __pycache__/
 *.py[cod]
 *$py.class
 .venv/
 env/
+venv/
 *.log
+
+# Large ML Weights (Stored in GitHub Releases)
+weights/**/*.pt
+weights/**/*.safetensors
+weights/**/*.bin
+weights/**/*.pth
+!weights/**/.gitkeep
+
+# IDEs & System
 .DS_Store
+Thumbs.db
 .vscode/
 .idea/
+~$*

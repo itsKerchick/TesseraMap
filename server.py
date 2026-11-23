@@ -28,10 +28,10 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-# Ensure SegFormer-Benchmark directory is in sys.path
+# Model inference engine
 ROOT = Path(__file__).resolve().parent
-BENCHMARK_DIR = Path(r"L:\Local project 2\SegFormer-Benchmark").resolve()
-if str(BENCHMARK_DIR) not in sys.path:
+BENCHMARK_DIR = (ROOT.parent / "SegFormer-Benchmark").resolve()
+if BENCHMARK_DIR.exists() and str(BENCHMARK_DIR) not in sys.path:
     sys.path.insert(0, str(BENCHMARK_DIR))
 
 HTML_FILE = ROOT / "index.html"
@@ -236,7 +236,11 @@ def decode_browser_image(image_b64: str, expected_w: int, expected_h: int, reque
 def get_models():
     global MODELS
     if MODELS is None:
-        import viewer_ensemble_compare_slider_fixed_v2 as viewer
+        try:
+            import ml_inference as viewer
+            viewer.load_models()
+        except Exception:
+            import viewer_ensemble_compare_slider_fixed_v2 as viewer
         MODELS = viewer
     return MODELS
 
