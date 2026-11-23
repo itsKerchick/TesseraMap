@@ -307,6 +307,11 @@
       width: 100%;
       height: 100%;
       background: #000000;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    #map.map-visible {
+      opacity: 1;
     }
 
     /* Clean Leaflet Attribution: Hides the Leaflet flag and logo completely */
@@ -572,11 +577,11 @@
       border-color: var(--accent-hover);
     }
 
-    /* Modal Overlays with smooth fade & scale transitions */
-    .overlay-screen {
+    /* Master Gate Overlay (Solid Black Backdrop, prevents map flashing) */
+    .gate-overlay {
       position: absolute;
       inset: 0;
-      background: var(--bg);
+      background: #000000;
       z-index: 1200;
       display: flex;
       align-items: center;
@@ -585,16 +590,16 @@
       opacity: 1;
       visibility: visible;
       transform: scale(1);
-      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .overlay-screen.hidden {
+    .gate-overlay.hidden {
       opacity: 0;
       visibility: hidden;
-      transform: scale(0.97);
+      transform: scale(0.98);
       pointer-events: none;
     }
 
-    /* Welcome Screen: Title & Description Header + Card */
+    /* Sub-views inside Gate Overlay */
     .welcome-container {
       display: flex;
       flex-direction: column;
@@ -603,6 +608,23 @@
       width: 100%;
       max-width: 540px;
       animation: cardEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .welcome-container.hidden {
+      display: none !important;
+    }
+
+    .connect-screen-box {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 18px;
+      animation: cardEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .connect-screen-box.hidden {
+      display: none !important;
     }
     .welcome-header {
       text-align: center;
@@ -709,18 +731,6 @@
       padding: 12px;
       font-size: 14px;
       border-radius: 4px;
-    }
-
-    /* Connection Status Screen matching reference */
-    .connect-screen-box {
-      width: 100%;
-      max-width: 600px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 18px;
-      animation: cardEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     /* Flat Radar Indicator */
@@ -1167,9 +1177,10 @@
       </div>
     </aside>
 
-    <!-- Welcome Screen (Step 1 - Minimalist portfolio aesthetic) -->
-    <div id="welcomeScreen" class="overlay-screen">
-      <div class="welcome-container">
+    <!-- Master Gate Overlay (Solid Black Backdrop, prevents map flashing) -->
+    <div id="gateOverlay" class="gate-overlay">
+      <!-- Welcome Screen (Step 1 - Minimalist portfolio aesthetic) -->
+      <div id="welcomeScreen" class="welcome-container">
         <!-- Brand title & description placed ABOVE the Connection window -->
         <div class="welcome-header">
           <h1 class="welcome-title"><span class="red-ch">T</span>essera<span class="red-ch">M</span>ap</h1>
@@ -1197,11 +1208,9 @@
           </button>
         </div>
       </div>
-    </div>
 
-    <!-- Connection Status Screen (Step 2 - Matches reference) -->
-    <div id="connectScreen" class="overlay-screen hidden">
-      <div class="connect-screen-box">
+      <!-- Connection Status Screen (Step 2 - Matches reference) -->
+      <div id="connectScreen" class="connect-screen-box hidden">
         <!-- Center Radar -->
         <div class="radar-indicator">
           <div class="radar-circle"></div>
@@ -1548,7 +1557,8 @@
     $('btnOpenOfflineMap').addEventListener('click', () => {
       addLog('Пользователь открыл карту в режиме просмотра (ML оффлайн)');
       attachSatelliteLayer(currentApiKey);
-      $('connectScreen').classList.add('hidden');
+      $('map').classList.add('map-visible');
+      $('gateOverlay').classList.add('hidden');
       $('brandIsland').classList.remove('hidden');
       $('telemetryIsland').classList.remove('hidden');
       $('mapControlsBar').classList.remove('hidden');
@@ -1590,6 +1600,8 @@
         satelliteLayer = null;
       }
       clearMasks();
+      $('map').classList.remove('map-visible');
+      $('gateOverlay').classList.remove('hidden');
       $('connectScreen').classList.add('hidden');
       $('welcomeScreen').classList.remove('hidden');
       $('brandIsland').classList.add('hidden');
@@ -1741,7 +1753,8 @@
 
         // Smooth fade out of connection overlay revealing the main app
         setTimeout(() => {
-          $('connectScreen').classList.add('hidden');
+          $('map').classList.add('map-visible');
+          $('gateOverlay').classList.add('hidden');
           $('brandIsland').classList.remove('hidden');
           $('telemetryIsland').classList.remove('hidden');
           $('mapControlsBar').classList.remove('hidden');
@@ -1788,6 +1801,8 @@
     function triggerApiExpired() {
       addLog('Критическая ошибка: MapTiler API ключ отклонён (401/403)', 'error');
       closeMenu();
+      $('map').classList.remove('map-visible');
+      $('gateOverlay').classList.remove('hidden');
       $('welcomeScreen').classList.add('hidden');
       $('connectScreen').classList.remove('hidden');
       $('brandIsland').classList.add('hidden');
