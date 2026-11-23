@@ -410,20 +410,21 @@
       justify-content: center;
     }
 
-    /* Mini island under floating-info-pill */
+    /* Mini island under floating-info-pill (Desktop: comfortable size, matches toolbar buttons) */
     .island-labels-mini {
       background: rgba(10, 10, 12, 0.9);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border: 1px solid var(--border);
       border-radius: 4px;
-      padding: 5px 10px;
+      padding: 7px 16px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      color: var(--text-muted);
+      gap: 9px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
       cursor: pointer;
       user-select: none;
       transition: all 0.15s ease;
@@ -433,16 +434,17 @@
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     }
     .island-labels-mini:hover {
-      border-color: rgba(255, 255, 255, 0.25);
-      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.35);
+      background: rgba(22, 22, 26, 0.95);
     }
     [data-theme="light"] .island-labels-mini:hover {
       border-color: var(--border-light);
+      background: #ffffff;
     }
     .island-labels-mini label {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 9px;
       cursor: pointer;
       user-select: none;
       margin: 0;
@@ -451,8 +453,8 @@
     .island-labels-mini input[type="checkbox"] {
       accent-color: var(--accent);
       cursor: pointer;
-      width: 13px;
-      height: 13px;
+      width: 16px;
+      height: 16px;
       margin: 0;
     }
 
@@ -1132,6 +1134,16 @@
       }
       .island-labels-mini {
         align-self: flex-end;
+        padding: 5px 10px;
+        font-size: 11px;
+        gap: 6px;
+      }
+      .island-labels-mini label {
+        gap: 6px;
+      }
+      .island-labels-mini input[type="checkbox"] {
+        width: 13px;
+        height: 13px;
       }
       .welcome-container {
         gap: 16px;
