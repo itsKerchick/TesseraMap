@@ -26,6 +26,7 @@ from pydantic import BaseModel, Field
 ROOT = Path(__file__).resolve().parent
 HTML_FILE = ROOT / "index.html"
 GUIDE_FILE = ROOT / "guide.html"
+MAPTILER_DOCX_HTML = ROOT / "maptiler_guide.html"
 GUIDE_ASSETS = ROOT / "guide_assets"
 PDF_FILE = ROOT / "maptiler_guide.pdf"
 DOCX_FILE = ROOT / "maptiler_guide.docx"
@@ -117,18 +118,35 @@ async def index():
 @app.get("/maptiler_guide", response_class=HTMLResponse)
 @app.get("/maptiler_guide.html", response_class=HTMLResponse)
 async def guide_page():
-    if not GUIDE_FILE.exists():
-        raise HTTPException(404, "guide.html не найден на VPS")
-    return GUIDE_FILE.read_text(encoding="utf-8")
+    if MAPTILER_DOCX_HTML.exists():
+        return MAPTILER_DOCX_HTML.read_text(encoding="utf-8")
+    if GUIDE_FILE.exists():
+        return GUIDE_FILE.read_text(encoding="utf-8")
+    raise HTTPException(404, "Документ не найден на VPS")
 
 
 @app.get("/maptiler_guide.docx")
-async def maptiler_guide_docx():
-    # If opened in a browser, render the interactive HTML guide so it OPENS instead of downloading
+async def maptiler_guide_docx(request: Request):
+    # Explicit download parameter
+    if request.query_params.get("download") == "1":
+        if DOCX_FILE.exists():
+            return FileResponse(
+                DOCX_FILE,
+                media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                filename="maptiler_guide.docx"
+            )
+    # Raw file for the JS viewer
+    if request.query_params.get("raw") == "1":
+        if DOCX_FILE.exists():
+            return FileResponse(
+                DOCX_FILE,
+                media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
+    # Default: Open docx directly in browser reading mode without downloading
+    if MAPTILER_DOCX_HTML.exists():
+        return HTMLResponse(MAPTILER_DOCX_HTML.read_text(encoding="utf-8"))
     if GUIDE_FILE.exists():
         return HTMLResponse(GUIDE_FILE.read_text(encoding="utf-8"))
-    if DOCX_FILE.exists():
-        return FileResponse(DOCX_FILE, media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
     raise HTTPException(404, "maptiler_guide.docx не найден")
 
 
