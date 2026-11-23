@@ -20,11 +20,15 @@ import httpx
 from fastapi import FastAPI, HTTPException, Request, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 ROOT = Path(__file__).resolve().parent
 HTML_FILE = ROOT / "index.html"
+GUIDE_FILE = ROOT / "guide.html"
+GUIDE_ASSETS = ROOT / "guide_assets"
 PDF_FILE = ROOT / "maptiler_guide.pdf"
+DOCX_FILE = ROOT / "maptiler_guide.docx"
 FAVICON_ICO = ROOT / "favicon.ico"
 FAVICON_PNG = ROOT / "favicon.png"
 FAVICON_SVG = ROOT / "favicon.svg"
@@ -109,11 +113,41 @@ async def index():
     return HTML_FILE.read_text(encoding="utf-8")
 
 
+@app.get("/guide", response_class=HTMLResponse)
+@app.get("/maptiler_guide", response_class=HTMLResponse)
+@app.get("/maptiler_guide.html", response_class=HTMLResponse)
+async def guide_page():
+    if not GUIDE_FILE.exists():
+        raise HTTPException(404, "guide.html не найден на VPS")
+    return GUIDE_FILE.read_text(encoding="utf-8")
+
+
+@app.get("/maptiler_guide.docx")
+async def maptiler_guide_docx():
+    # If opened in a browser, render the interactive HTML guide so it OPENS instead of downloading
+    if GUIDE_FILE.exists():
+        return HTMLResponse(GUIDE_FILE.read_text(encoding="utf-8"))
+    if DOCX_FILE.exists():
+        return FileResponse(DOCX_FILE, media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+    raise HTTPException(404, "maptiler_guide.docx не найден")
+
+
 @app.get("/maptiler_guide.pdf")
-async def maptiler_guide():
-    if not PDF_FILE.exists():
-        raise HTTPException(404, "maptiler_guide.pdf не найден на VPS")
-    return FileResponse(PDF_FILE, media_type="application/pdf", filename="maptiler_guide.pdf")
+async def maptiler_guide_pdf():
+    # Serve with inline Content-Disposition so browsers view it directly without triggering download
+    if PDF_FILE.exists():
+        return FileResponse(
+            PDF_FILE,
+            media_type="application/pdf",
+            headers={"Content-Disposition": "inline; filename=maptiler_guide.pdf"}
+        )
+    if GUIDE_FILE.exists():
+        return HTMLResponse(GUIDE_FILE.read_text(encoding="utf-8"))
+    raise HTTPException(404, "Руководство не найдено на VPS")
+
+
+if GUIDE_ASSETS.exists():
+    app.mount("/guide_assets", StaticFiles(directory=str(GUIDE_ASSETS)), name="guide_assets")
 
 
 @app.get("/favicon.ico")

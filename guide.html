@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Гайд: Как получить API ключ MapTiler — TesseraMap</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <style>
+    :root {
+      --bg: #09090d;
+      --surface: #121218;
+      --surface-card: #171720;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(229, 57, 53, 0.35);
+      --accent: #e53935;
+      --accent-hover: #d32f2f;
+      --accent-glow: rgba(229, 57, 53, 0.25);
+      --text: #f0f0f5;
+      --text-muted: #9e9ea8;
+      --text-subtle: #6b6b76;
+      --success: #34d399;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: "JetBrains Mono", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 60px;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation Bar */
+    .top-bar {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .brand-logo {
+      width: 28px;
+      height: 28px;
+      background: #000;
+      border: 1px solid var(--border-accent);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--accent);
+    }
+    .brand-name {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .brand-name span {
+      color: var(--accent);
+    }
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .btn-back:hover {
+      background: var(--surface-card);
+      border-color: var(--border-accent);
+      color: #fff;
+    }
+
+    /* Main Container */
+    .container {
+      width: 100%;
+      max-width: 860px;
+    }
+
+    /* Header */
+    .guide-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .guide-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 100px;
+      background: rgba(229, 57, 53, 0.12);
+      border: 1px solid var(--border-accent);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      font-family: var(--font-mono);
+    }
+    .guide-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      color: #ffffff;
+    }
+    .guide-desc {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    /* Step Card */
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+    .step-card:hover {
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(229, 57, 53, 0.15);
+      border: 1px solid var(--border-accent);
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      flex-shrink: 0;
+    }
+    .step-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .step-text {
+      color: var(--text-muted);
+      font-size: 14.5px;
+      margin-bottom: 16px;
+      line-height: 1.55;
+    }
+    .step-text a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .step-text a:hover {
+      color: #ff6b6b;
+    }
+    .step-text strong {
+      color: #fff;
+    }
+    .step-code {
+      display: inline-block;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--accent);
+    }
+
+    /* Image Wrapper */
+    .img-wrap {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .img-wrap img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.25s ease;
+      cursor: zoom-in;
+    }
+    .img-wrap img:hover {
+      transform: scale(1.01);
+    }
+
+    /* Support / Contacts Box */
+    .contacts-card {
+      background: linear-gradient(180deg, rgba(23, 23, 32, 0.9) 0%, rgba(18, 18, 24, 0.9) 100%);
+      border: 1px solid var(--border-accent);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      margin-top: 32px;
+      box-shadow: 0 8px 30px rgba(229, 57, 53, 0.08);
+    }
+    .contacts-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .contacts-text {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .contacts-email {
+      color: var(--accent);
+      font-weight: 700;
+      font-family: var(--font-mono);
+      text-decoration: none;
+    }
+    .contacts-email:hover {
+      text-decoration: underline;
+    }
+
+    /* Lightbox Modal for Fullscreen Image Zoom */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(10px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      cursor: zoom-out;
+    }
+    .lightbox.active {
+      display: flex;
+    }
+    .lightbox img {
+      max-width: 95vw;
+      max-height: 92vh;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    @media (max-width: 640px) {
+      .guide-title {
+        font-size: 24px;
+      }
+      .step-card {
+        padding: 18px 14px;
+      }
+      .step-title {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="top-bar">
+    <a href="/" class="brand">
+      <div class="brand-logo">TM</div>
+      <div class="brand-name"><span>T</span>essera<span>M</span>ap</div>
+    </a>
+    <a href="/" class="btn-back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <span>Вернуться к карте</span>
+    </a>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+    <div class="guide-header">
+      <span class="guide-badge">Инструкция</span>
+      <h1 class="guide-title">MapTiler API ключ гайд</h1>
+      <p class="guide-desc">
+        Пошаговое руководство по созданию бесплатного API ключа для спутниковых карт MapTiler. 
+        Ключ создаётся бесплатно за 1 минуту и позволяет загружать детальные спутниковые снимки в TesseraMap.
+      </p>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <div class="step-title">Регистрация аккаунта</div>
+      </div>
+      <p class="step-text">
+        Идём сюда: <a href="https://cloud.maptiler.com/" target="_blank" rel="noopener">https://cloud.maptiler.com/</a> и создаём аккаунт через гугл/почту:
+      </p>
+      <div class="img-wrap">
+        <img src="guide_assets/image1.jpeg" alt="Регистрация на MapTiler Cloud" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">2</div>
+        <div class="step-title">Вход в панель управления</div>
+      </div>
+      <p class="step-text">
+        Когда зарегались/вошли нас перебрасывает сюда: <a href="https://cloud.maptiler.com/maps/" target="_blank" rel="noopener">https://cloud.maptiler.com/maps/</a> (если не перебросило – зайдите сами):
+      </p>
+      <div class="img-wrap">
+        <img src="guide_assets/image2.png" alt="Панель карт MapTiler" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">3</div>
+        <div class="step-title">Переход в раздел API Keys</div>
+      </div>
+      <p class="step-text">
+        Тут нажимаете крестик и переходите в вкладку <strong>“API Keys”</strong>:
+      </p>
+      <div class="img-wrap">
+        <img src="guide_assets/image3.png" alt="Вкладка API Keys" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">4</div>
+        <div class="step-title">Создание нового ключа</div>
+      </div>
+      <p class="step-text">
+        На странице API Keys нажимаете <strong>“NEW KEY”</strong>:
+      </p>
+      <div class="img-wrap">
+        <img src="guide_assets/image4.png" alt="Кнопка New Key" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">5</div>
+        <div class="step-title">Имя ключа и подтверждение</div>
+      </div>
+      <p class="step-text">
+        Вписываете любое имя ключа и нажимаете <strong>“CREATE”</strong>:
+      </p>
+      <div class="img-wrap">
+        <img src="guide_assets/image5.png" alt="Создание ключа" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">6</div>
+        <div class="step-title">Копирование ключа</div>
+      </div>
+      <p class="step-text">
+        Копируете ключ. В моём случае это: <span class="step-code">LRNp35SW67SP8U5pxp85</span>:
+      </p>
+      <div class="img-wrap">
+        <img src="guide_assets/image6.png" alt="Копирование ключа MapTiler" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">7</div>
+        <div class="step-title">Вставка ключа в TesseraMap</div>
+      </div>
+      <p class="step-text">
+        Возвращаетесь назад (<a href="https://tessera.mrkerchick.ru" target="_blank">https://tessera.mrkerchick.ru</a>) и вводите этот ключ в поле ввода и нажимаете <strong>“Подключиться”</strong>:
+      </p>
+      <div class="img-wrap">
+        <img src="guide_assets/image7.gif" alt="Подключение к TesseraMap" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Contacts -->
+    <div class="contacts-card">
+      <div class="contacts-title">Возникли вопросы или трудности?</div>
+      <p class="contacts-text">
+        По вопросам писать либо мне, либо на почту: 
+        <a href="mailto:kerchick@rassvet.team" class="contacts-email">kerchick@rassvet.team</a>
+      </p>
+    </div>
+  </main>
+
+  <!-- Fullscreen Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <img id="lightboxImg" src="" alt="Fullscreen view">
+  </div>
+
+  <script>
+    const lb = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightboxImg');
+
+    document.querySelectorAll('.img-wrap img').forEach(img => {
+      img.addEventListener('click', () => {
+        lbImg.src = img.src;
+        lb.classList.add('active');
+      });
+    });
+
+    lb.addEventListener('click', () => {
+      lb.classList.remove('active');
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') lb.classList.remove('active');
+    });
+  </script>
+</body>
+</html>
