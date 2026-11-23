@@ -35,6 +35,9 @@ if str(BENCHMARK_DIR) not in sys.path:
 
 HTML_FILE = ROOT / "index.html"
 PDF_FILE = ROOT / "maptiler_guide.pdf"
+FAVICON_ICO = ROOT / "favicon.ico"
+FAVICON_PNG = ROOT / "favicon.png"
+FAVICON_SVG = ROOT / "favicon.svg"
 
 CUSTOM_URL_TEMPLATE = os.getenv("SATELLITE_XYZ_URL", "").strip()
 MAPTILER_KEY = os.getenv("MAPTILER_API_KEY", "").strip()
@@ -339,6 +342,27 @@ async def maptiler_guide():
     if not PDF_FILE.exists():
         raise HTTPException(404, "Инструкция maptiler_guide.pdf не найдена в корне проекта")
     return FileResponse(PDF_FILE, media_type="application/pdf", filename="maptiler_guide.pdf")
+
+
+@app.get("/favicon.ico")
+async def favicon_ico():
+    if FAVICON_ICO.exists():
+        return FileResponse(FAVICON_ICO, media_type="image/x-icon")
+    raise HTTPException(404)
+
+
+@app.get("/favicon.png")
+async def favicon_png():
+    if FAVICON_PNG.exists():
+        return FileResponse(FAVICON_PNG, media_type="image/png")
+    raise HTTPException(404)
+
+
+@app.get("/favicon.svg")
+async def favicon_svg():
+    if FAVICON_SVG.exists():
+        return FileResponse(FAVICON_SVG, media_type="image/svg+xml")
+    raise HTTPException(404)
 
 
 @app.get("/api/ping")
