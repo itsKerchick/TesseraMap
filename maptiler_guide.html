@@ -57,34 +57,13 @@
       gap: 12px;
     }
 
-    .word-badge {
-      background: var(--accent-word);
-      color: #fff;
-      font-weight: 800;
-      font-size: 13px;
-      padding: 4px 8px;
-      border-radius: 4px;
-      letter-spacing: 0.05em;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
     .doc-title {
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 15px;
+      font-weight: 700;
       color: #fff;
       display: flex;
       align-items: center;
-      gap: 8px;
-    }
-
-    .doc-mode {
-      font-size: 11px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-muted);
-      padding: 2px 7px;
-      border-radius: 3px;
+      letter-spacing: -0.01em;
     }
 
     .toolbar-actions {
@@ -176,6 +155,25 @@
       color: #111111 !important;
     }
 
+    /* Glowing Blue Links inside Word Document */
+    .docx-wrapper a,
+    .docx-wrapper a:visited,
+    .glowing-blue-link {
+      color: #0066ff !important;
+      text-decoration: underline !important;
+      text-decoration-thickness: 1.5px !important;
+      text-underline-offset: 3px !important;
+      font-weight: 600 !important;
+      text-shadow: 0 0 8px rgba(0, 102, 255, 0.45), 0 0 16px rgba(0, 150, 255, 0.3) !important;
+      transition: color 0.18s ease, text-shadow 0.18s ease !important;
+      cursor: pointer !important;
+    }
+    .docx-wrapper a:hover,
+    .glowing-blue-link:hover {
+      color: #0044cc !important;
+      text-shadow: 0 0 12px rgba(0, 102, 255, 0.8), 0 0 24px rgba(0, 170, 255, 0.6) !important;
+    }
+
     /* Loading overlay */
     .loading-overlay {
       position: absolute;
@@ -211,9 +209,6 @@
     }
 
     @media (max-width: 640px) {
-      .doc-mode, .btn-print {
-        display: none !important;
-      }
       .office-toolbar {
         padding: 0 10px;
       }
@@ -228,13 +223,8 @@
   <!-- Office Header Toolbar -->
   <header class="office-toolbar">
     <div class="doc-info">
-      <div class="word-badge">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.5 3h-15C3.67 3 3 3.67 3 4.5v15c0 .83.67 1.5 1.5 1.5h15c.83 0 1.5-.67 1.5-1.5v-15c0-.83-.67-1.5-1.5-1.5zm-8.2 14.5L8.5 11.2l-2.8 6.3H4.1L8 6.5h1.8l3.1 7.2 3.1-7.2h1.8l3.9 11h-1.6l-2.8-6.3-2.8 6.3h-1.8z"/></svg>
-        <span>DOCX</span>
-      </div>
       <div class="doc-title">
         <span>maptiler_guide.docx</span>
-        <span class="doc-mode">Режим чтения</span>
       </div>
     </div>
 
@@ -244,11 +234,6 @@
         <span class="zoom-val" id="zoomVal">100%</span>
         <button class="btn-zoom" id="btnZoomIn" title="Увеличить">+</button>
       </div>
-
-      <button class="btn-tool btn-print" onclick="window.print()" title="Распечатать документ">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        <span>Печать</span>
-      </button>
 
       <a href="maptiler_guide.docx?download=1" class="btn-tool" download="maptiler_guide.docx" title="Скачать оригинальный файл .docx">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -336,6 +321,22 @@
           trimXmlDeclaration: true,
           useBase64URL: true
         });
+
+        // Make all links open in new tab and glow blue
+        target.querySelectorAll('a').forEach(a => {
+          a.setAttribute('target', '_blank');
+          a.setAttribute('rel', 'noopener noreferrer');
+          a.classList.add('glowing-blue-link');
+        });
+
+        // Also wrap any raw text URLs (e.g. https://... or mailto:...)
+        const urlRegex = /(https?:\/\/[^\s<>"')]+)/g;
+        target.querySelectorAll('span, p').forEach(el => {
+          if (el.children.length === 0 && urlRegex.test(el.textContent)) {
+            el.innerHTML = el.textContent.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer" class="glowing-blue-link">$1</a>');
+          }
+        });
+
         overlay.classList.add('hidden');
       } catch (e) {
         console.error('docx rendering error:', e);
