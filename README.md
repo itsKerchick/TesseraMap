@@ -79,7 +79,7 @@
 
 1. **Клонируйте репозиторий:**
    ```bash
-   git clone https://github.com/ВАШ_АККАУНТ/TesseraMap.git
+   git clone https://github.com/ItsKerchick/TesseraMap.git
    cd TesseraMap
    ```
 
@@ -120,7 +120,7 @@ tessera start
 #### Б. На домашнем компьютере с видеокартой:
 1. В файле [run_worker.bat](run_worker.bat) укажите адрес вашего сервера и секретный токен:
    ```cmd
-   set "VPS_URL=wss://tessera.mrkerchick.ru/ws/worker"
+   set "VPS_URL=wss://адрес_вашего_сервера/ws/worker"
    set "WORKER_SECRET=ваш_секретный_пароль"
    ```
 2. Запустите:
